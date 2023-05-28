@@ -1,0 +1,45 @@
+name: Docker
+
+on:
+  push:
+    branches: main
+
+jobs:
+  docker_build:
+    environment: docker-hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Lint pyspark-coretto-8-emr-dbs-universal-python
+        uses: hadolint/hadolint-action@v2.0.0
+        with:
+          dockerfile: pyspark-coretto-8-emr-dbs-universal-python/Dockerfile
+          failure-threshold: error
+
+      - name: Run privileged
+        run: sudo docker run --privileged --rm tonistiigi/binfmt --install arm64
+
+      - name: Build pyspark-coretto-8-emr-dbs-universal-python
+        id: docker_build_1
+        uses: docker/build-push-action@v3
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: ./pyspark-coretto-8-emr-dbs-universal-python
+          file: ./pyspark-coretto-8-emr-dbs-universal-python/Dockerfile
+          push: false
+          tags: infrahelpers/dpp:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
