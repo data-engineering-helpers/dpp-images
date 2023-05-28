@@ -1,4 +1,3 @@
-
 Container images focusing on Data Processing Pipelines (DPP)
 ============================================================
 
@@ -91,12 +90,12 @@ applications / Data Processing Pipeline (DPP).
 # Simple use
 * Download the Docker image:
 ```bash
-$ docker pull infrahelpers/dpp
+$ docker pull infrahelpers/dpp:py311
 ```
 
 * Launch a Spark application:
 ```bash
-$ docker run -it infrahelpers/dpp
+$ docker run -it infrahelpers/dpp:311
 ```
 
 # Build your own container image
@@ -113,7 +112,7 @@ $ cd dpp
     with a single Python installation, with more freedom on its version,
 	with JDK 8:
 ```bash
-$ docker build -t infrahelpers/cloud-python:pyspark-emr-dbs-univ pyspark-coretto-8-emr-dbs-universal-python
+$ docker build -t infrahelpers/cloud-python:pyspark-py311 pyspark-py311
 ```
 
 * In addition to what the Docker Hub builds, the CI/CD (GitHub Actions)
@@ -128,12 +127,12 @@ $ docker build -t infrahelpers/cloud-python:pyspark-emr-dbs-univ pyspark-coretto
   [a change on GitHub](https://github.com/data-engineering-helpers/dpp-images/commits/master))
 ```bash
 $ docker login
-$ docker push infrahelpers/dpp
+$ docker push infrahelpers/dpp:py311
 ```
 
 * Choose which image should be the latest, tag it and upload it to Docker Hub:
 ```bash
-$ docker tag infrahelpers/dpp:py310 infrahelpers/dpp:latest
+$ docker tag infrahelpers/dpp:py311 infrahelpers/dpp:latest
 $ docker push infrahelpers/dpp:latest
 ```
 

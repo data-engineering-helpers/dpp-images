@@ -48,10 +48,7 @@ LABEL authors "Denis Arnaud <denis.arnaud_fedora@m4x.org>"
 ENV container="docker"
 ENV HOME="/root"
 ENV HOMEUSR="/home/ubuntu"
-ENV PYSPARK_PYTHON="/databricks/python3/bin/python3"
 ENV PYSPARK_DRIVER_PYTHON="python3"
-ENV PYTHON_MINOR_VERSION="3.9"
-ENV PYTHON_MICRO_VERSION="${PYTHON_MINOR_VERSION}.16"
 
 # Update the OS and install a few packages useful for software development
 # (needed for some Python modules like SHAP)
@@ -103,22 +100,6 @@ RUN SAML2AWS_VER=$(curl -Ls https://api.github.com/repos/Versent/saml2aws/releas
 # Copy configuration in the user home, for the root user
 ADD bashrc $HOME/.bashrc
 
-# Install the PYTHON_MICRO_VERSION version of Python
-RUN curl -kLs \
-	https://www.python.org/ftp/python/${PYTHON_MICRO_VERSION}/Python-${PYTHON_MICRO_VERSION}.tgz \
-	-o Python-${PYTHON_MICRO_VERSION}.tgz && \
-	tar zxf Python-${PYTHON_MICRO_VERSION}.tgz && \
-	rm -f Python-${PYTHON_MICRO_VERSION}.tgz && \
-    cd Python-${PYTHON_MICRO_VERSION} && \
-    ./configure --prefix=/usr && \
-    make && \
-    make altinstall
-
-# Set the PYTHON_MICRO_VERSION version of Python as system Python
-# This is what is used by AWS EMR
-RUN cp -f /usr/bin/python${PYTHON_MINOR_VERSION} /usr/bin/python3 && \
-	cp -f /usr/bin/python${PYTHON_MINOR_VERSION} /usr/bin/python
-
 # Create an ubuntu user
 RUN useradd ubuntu && \
 	echo "ubuntu  ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
@@ -126,10 +107,5 @@ RUN useradd ubuntu && \
 
 # Create a /databricks/python3 directory and set environment and permissions
 # This is what is used by DataBricks
-RUN	mkdir -p /databricks/python3 && chown -R ubuntu:ubuntu /databricks
-ENV PYSPARK_PYTHON="/databricks/python3/bin/python3"
-
-# Install a virtual environment in /databricks/python3
-RUN python3 -mpip install virtualenv && \
-	virtualenv --system-site-packages /databricks/python3
+RUN mkdir -p /databricks/python3 && chown -R ubuntu:ubuntu /databricks
 

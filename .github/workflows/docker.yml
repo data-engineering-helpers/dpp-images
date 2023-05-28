@@ -32,14 +32,26 @@ jobs:
         run: sudo docker run --privileged --rm tonistiigi/binfmt --install arm64
 
       - name: Build pyspark-coretto-8-emr-dbs-universal-python
-        id: docker_build_1
+        id: docker_build_base
         uses: docker/build-push-action@v3
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: ./pyspark-coretto-8-emr-dbs-universal-python
           file: ./pyspark-coretto-8-emr-dbs-universal-python/Dockerfile
           push: false
-          tags: infrahelpers/dpp:latest
+          tags: infrahelpers/dpp:pyspark-emr-dbs-univ
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build pyspark-py311
+        id: docker_build_py311
+        uses: docker/build-push-action@v3
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: ./pyspark-py311
+          file: ./pyspark-py311/Dockerfile
+          push: false
+          tags: infrahelpers/dpp:py311
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
