@@ -114,6 +114,12 @@ $ cd dpp
 ```bash
 $ docker build -t infrahelpers/cloud-python:pyspark-py311 pyspark-py311
 ```
+  + Amazon Linux 2 for Elastic Map Reduce (EMR) 6 and DataBricks
+    with a single Python installation, with more freedom on its version,
+	with JDK 11:
+```bash
+$ docker build -t infrahelpers/cloud-python:pyspark-py311-jdk11 pyspark-py311-jdk11
+```
 
 * In addition to what the Docker Hub builds, the CI/CD (GitHub Actions)
   pipeline also builds the `infrahelpers/dpp` images,

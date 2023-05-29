@@ -1,9 +1,9 @@
 #
-# Source: https://github.com/data-engineering-helpers/dpp-images/tree/main/pyspark-coretto-8-emr-dbs-universal-python/Dockerfile
+# Source: https://github.com/data-engineering-helpers/dpp-images/tree/main/pyspark-coretto-11-emr-dbs-universal-python/Dockerfile
 # On Docker Hub: https://hub.docker.com/repository/docker/infrahelpers/dpp/general
-# Usual Docker tag: pyspark-emr-dbs-univ (infrahelpers/dpp:pyspark-emr-dbs-univ)
+# Usual Docker tag: pyspark-emr-dbs-univ-jdk11 (infrahelpers/dpp:pyspark-emr-dbs-univ-jdk11)
 #
-# Base image for Data Processing Pipelines (DPP), with images
+# Base image for Data Processing Pipelines (DPP), with JDK11 and with images
 # for specific Python versions
 #
 # Inspired by:
@@ -40,7 +40,7 @@
 # /databricks/python3, and Python is the main one (pristine, installed manually
 # by that container image)
 #
-FROM amazoncorretto:8
+FROM amazoncorretto:11
 
 LABEL authors "Denis Arnaud <denis.arnaud_fedora@m4x.org>"
 
