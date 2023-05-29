@@ -59,15 +59,12 @@ RUN yum -y update && \
 
 # Install a few more utilities, including pre-requisites for Python
 RUN yum -y install procps net-tools hostname iproute coreutils \
-	openssl-devel less htop passwd which sudo man vim git tar tree \
-	wget curl file bash-completion keyutils zlib-devel bzip2-devel gzip \
+	less htop passwd which sudo man vim git tar tree \
+	wget curl file bash-completion keyutils \
+	zlib-devel bzip2-devel gzip \
+	openssl11-libs openssl11-devel \
 	autoconf automake libtool m4 gcc gcc-c++ cmake cmake3 libffi-devel \
 	readline-devel sqlite-devel jq fuse fuse-libs && \
-	yum clean all
-
-# 
-RUN yum -y install passwd fuse fuse-libs iproute net-tools procps coreutils \
-	gcc openssl-devel gzip bzip2-devel libffi-devel zlib-devel && \
 	yum clean all
 
 #

@@ -31,7 +31,7 @@ RUN curl -kLs \
 	tar zxf Python-${PYTHON_MICRO_VERSION}.tgz && \
 	rm -f Python-${PYTHON_MICRO_VERSION}.tgz && \
     cd Python-${PYTHON_MICRO_VERSION} && \
-    ./configure --prefix=/usr && \
+    ./configure --prefix=/usr --enable-optimizations && \
     make && \
     make altinstall
 
