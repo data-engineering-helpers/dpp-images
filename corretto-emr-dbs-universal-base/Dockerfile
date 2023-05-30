@@ -1,10 +1,10 @@
 #
 # Source: https://github.com/data-engineering-helpers/dpp-images/tree/main/pyspark-coretto-emr-dbs-universal-base/Dockerfile
 # On Docker Hub: https://hub.docker.com/repository/docker/infrahelpers/dpp/general
-# Convention for the name / tags of the generated images:
-# * infrahelpers/coretto-{JDK_VERSION}-emr-dbs-universal-base, e.g.:
-#  * infrahelpers/coretto-8-emr-dbs-universal-base
-#  * infrahelpers/coretto-11-emr-dbs-universal-base
+# Convention for the  tags of the generated images:
+# * infrahelpers/dpp:jdk{JDK_VERSION} e.g.:
+#  * infrahelpers/dpp:jdk8
+#  * infrahelpers/dpp:jdk11
 #
 # Base image for Data Processing Pipelines (DPP), with images
 # for specific Python versions

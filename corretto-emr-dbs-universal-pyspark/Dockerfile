@@ -1,12 +1,13 @@
 #
 # Source: https://github.com/data-engineering-helpers/dpp-images/tree/main/pyspark-py310/Dockerfile
 # On Docker Hub: https://hub.docker.com/repository/docker/infrahelpers/dpp/general
-# Usual Docker tag: py310 (infrahelpers/dpp:py310)
+# Usual Docker tags:
+# * infrahelpers/dpp:jdk{JDK_VERSION}-python{PYTHON_MINOR_VERSION}
+# * infrahelpers/dpp:jdk{JDK_VERSION}-python{PYTHON_MICRO_VERSION}
 #
-# Specific image for Python 3.10 based Data Processing Pipelines (DPP)
-#
-# See https://github.com/data-engineering-helpers/dpp-images/tree/main/pyspark-coretto-8-emr-dbs-universal-python/Dockerfile
-# for more details about the base image (tag: infrahelpers/dpp:pyspark-emr-dbs-univ)
+# Image containing python installation, to be accessed by EMR and Databricks (for pyspark)
+# See https://github.com/data-engineering-helpers/dpp-images/tree/main/coretto-emr-dbs-universal-base/Dockerfile
+# for more details about the base image (tag: infrahelpers/dpp:jdk{JDK_VERSION})
 #
 ARG JDK_VERSION
 
