@@ -46,7 +46,7 @@
 ARG JDK_VERSION
 FROM amazoncorretto:${JDK_VERSION}
 
-LABEL authors "Denis Arnaud <denis.arnaud_fedora@m4x.org>"
+LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>, Nicolas Gibaud <nicolas.gibaud.partner@decathlon.com>"
 
 # Environment
 ENV container="docker"

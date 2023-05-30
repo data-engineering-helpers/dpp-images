@@ -10,9 +10,9 @@
 #
 ARG JDK_VERSION
 
-FROM infrahelpers/coretto-${JDK_VERSION}-emr-dbs-universal-base
+FROM infrahelpers/dpp:jdk${JDK_VERSION}
 
-LABEL authors "Denis Arnaud <denis.arnaud_fedora@m4x.org>"
+LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>, Nicolas Gibaud <nicolas.gibaud.partner@decathlon.com>"
 
 ARG PYTHON_MINOR_VERSION
 ARG PYTHON_MICRO_VERSION
