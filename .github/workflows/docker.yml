@@ -70,7 +70,7 @@ jobs:
         id: extract_minor_version
         run: |
           minor_version=$(echo "${{ matrix.python_micro_version }}" | cut -d. -f1-2)
-          echo "::set-output name=minor_version::${minor_version}"
+          echo "MINOR_VERSION=${minor_version}" >> $GITHUB_ENV
 
       - name: Build corretto with EMR / DBS python installed
         id: docker_build_corretto_python
@@ -81,11 +81,11 @@ jobs:
           file: ./corretto-emr-dbs-universal-pyspark/Dockerfile
           build-args: |
             JDK_VERSION=${{ matrix.jdk_version }}
-            PYTHON_MINOR_VERSION=${{ steps.extract_minor_version.outputs.minor_version }}
+            PYTHON_MINOR_VERSION=$MINOR_VERSION
             PYTHON_MICRO_VERSION=${{ matrix.python_micro_version }}
           push: true
           tags: |
-            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ steps.extract_version.outputs.minor_version }}
+            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python$MINOR_VERSION
             infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
