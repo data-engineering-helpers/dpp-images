@@ -2,10 +2,15 @@ name: Docker
 
 on:
   push:
-    branches: main
+    branches:
+    - main
+    - refactor/mutualize-dockerfiles
 
 jobs:
-  docker_build:
+  build_base_images:
+    strategy:
+      matrix:
+        jdk_version: [8, 11]
     environment: docker-hub
     runs-on: ubuntu-latest
     steps:
@@ -22,36 +27,65 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v2
 
-      #- name: Lint pyspark-coretto-8-emr-dbs-universal-python
-      #  uses: hadolint/hadolint-action@v3.1.0
-      #  with:
-      #    dockerfile: pyspark-coretto-8-emr-dbs-universal-python/Dockerfile
-      #    failure-threshold: error
-
       - name: Run privileged
         run: sudo docker run --privileged --rm tonistiigi/binfmt --install arm64
 
-      - name: Build pyspark-coretto-8-emr-dbs-universal-python
-        id: docker_build_base
+      - name: Build base corretto image
+        id: docker_build_corretto_base
         uses: docker/build-push-action@v4
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ./pyspark-coretto-8-emr-dbs-universal-python
-          file: ./pyspark-coretto-8-emr-dbs-universal-python/Dockerfile
-          push: false
-          tags: infrahelpers/dpp:pyspark-emr-dbs-univ
+          context: ./corretto-emr-dbs-universal-base
+          file: ./corretto-emr-dbs-universal-base/Dockerfile
+          build-args: |
+            JDK_VERSION=${{ matrix.jdk_version }}
+          push: true
+          tags: infrahelpers/dpp:jdk${{ matrix.jdk_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build pyspark-py311
-        id: docker_build_py311
+  build_python_images:
+    needs: build_base_images
+    strategy:
+      matrix:
+        jdk_version: [8, 11]
+        python_micro_version: [3.9.16, 3.10.11, 3.11.3 ]  # Use the latest micro versions of each minor version
+    environment: docker-hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Extract Minor Version
+        id: extract_minor_version
+        run: |
+          echo "::set-output name=minor_version::${{ matrix.python_micro_version.split('.')[0:2] | join('.') }}"
+
+      - name: Build corretto with EMR / DBS python installed
+        id: docker_build_corretto_python
         uses: docker/build-push-action@v4
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ./pyspark-py311
-          file: ./pyspark-py311/Dockerfile
-          push: false
-          tags: infrahelpers/dpp:py311
+          context: ./corretto-emr-dbs-universal-pyspark
+          file: ./corretto-emr-dbs-universal-pyspark/Dockerfile
+          build-args: |
+            JDK_VERSION=${{ matrix.jdk_version }}
+            PYTHON_MINOR_VERSION=${{ steps.extract_minor_version.outputs.minor_version }}
+            PYTHON_MICRO_VERSION=${{ matrix.python_micro_version }}
+          push: true
+          tags: |
+            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ steps.extract_version.outputs.minor_version }}
+            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

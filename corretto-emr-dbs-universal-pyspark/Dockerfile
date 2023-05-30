@@ -1,24 +1,29 @@
 #
-# Source: https://github.com/data-engineering-helpers/dpp-images/tree/main/pyspark-py311/Dockerfile
+# Source: https://github.com/data-engineering-helpers/dpp-images/tree/main/pyspark-py310/Dockerfile
 # On Docker Hub: https://hub.docker.com/repository/docker/infrahelpers/dpp/general
-# Usual Docker tag: py311 (infrahelpers/dpp:py311)
+# Usual Docker tag: py310 (infrahelpers/dpp:py310)
 #
-# Specific image for Python 3.11 based Data Processing Pipelines (DPP)
+# Specific image for Python 3.10 based Data Processing Pipelines (DPP)
 #
 # See https://github.com/data-engineering-helpers/dpp-images/tree/main/pyspark-coretto-8-emr-dbs-universal-python/Dockerfile
 # for more details about the base image (tag: infrahelpers/dpp:pyspark-emr-dbs-univ)
 #
-FROM infrahelpers/dpp:pyspark-emr-dbs-univ
+ARG JDK_VERSION
+
+FROM infrahelpers/coretto-${JDK_VERSION}-emr-dbs-universal-base
 
 LABEL authors "Denis Arnaud <denis.arnaud_fedora@m4x.org>"
+
+ARG PYTHON_MINOR_VERSION
+ARG PYTHON_MICRO_VERSION
 
 # Environment
 ENV container="docker"
 ENV HOME="/root"
 ENV HOMEUSR="/home/ubuntu"
 ENV PYSPARK_DRIVER_PYTHON="python3"
-ENV PYTHON_MINOR_VERSION="3.11"
-ENV PYTHON_MICRO_VERSION="${PYTHON_MINOR_VERSION}.3"
+ENV PYTHON_MINOR_VERSION=$PYTHON_MINOR_VERSION
+ENV PYTHON_MICRO_VERSION=$PYTHON_MICRO_VERSION
 ENV PYSPARK_PYTHON="/databricks/python3/bin/python3"
 
 # Update the OS
