@@ -69,7 +69,8 @@ jobs:
       - name: Extract Minor Version
         id: extract_minor_version
         run: |
-          echo "::set-output name=minor_version::${{ matrix.python_micro_version.split('.')[0:2] | join('.') }}"
+          minor_version=$(echo "${{ matrix.python_micro_version }}" | cut -d. -f1-2)
+          echo "::set-output name=minor_version::${minor_version}"
 
       - name: Build corretto with EMR / DBS python installed
         id: docker_build_corretto_python
