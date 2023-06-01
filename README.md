@@ -1,8 +1,6 @@
 Container images focusing on Data Processing Pipelines (DPP)
 ============================================================
 
-[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/infrahelpers/dpp)](https://hub.docker.com/repository/docker/infrahelpers/dpp/general)
-
 # Overview
 [That project](https://github.com/data-engineering-helpers/dpp-images)
 produces [OCI](https://opencontainers.org/)
@@ -11,8 +9,13 @@ which provide environments for Data Processing Pipelines (DPP),
 ready to use and to be deployed on Modern Data Stack (MDS),
 be it on private or public clouds (_e.g._, AWS, Azure, GCP).
 
-These images are based
-[AWS-supported Corretto](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/what-is-corretto-8.html)
+These images are based on
+[AWS-supported Corretto](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/what-is-corretto-8.html).
+Thanks to
+[GitHub Actions (CI/CD)](https://github.com/data-engineering-helpers/dpp-images/actions),
+every time there are commits on this Git repository,
+the OCI imaages are built and published on
+[Docker Hub](https://hub.docker.com/repository/docker/infrahelpers/dpp/general).
 
 These OCI images are aimed at deploying Data Engineering applications,
 typically Data Processing Pipelines (DPP), on
