@@ -44,6 +44,7 @@ RUN curl -kLs \
 # Set the PYTHON_MICRO_VERSION version of Python as system Python
 # This is what is used by AWS EMR
 RUN cp -f /usr/bin/python${PYTHON_MINOR_VERSION} /usr/bin/python3 && \
+    cp -f /usr/bin/python${PYTHON_MINOR_VERSION} /usr/bin/python && \
 	python3 --version
 
 # Install a virtual environment in /databricks/python3
