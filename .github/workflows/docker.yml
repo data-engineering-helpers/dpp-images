@@ -71,6 +71,12 @@ jobs:
           minor_version=$(echo "${{ matrix.python_micro_version }}" | cut -d. -f1-2)
           echo "minor_version=${minor_version}" >> $GITHUB_OUTPUT
 
+      - name: Load short sha
+        uses: benjlevesque/short-sha@v2.2
+        id: short-sha
+        with:
+          length: 7
+
       - name: Build corretto with EMR / DBS python installed
         id: docker_build_corretto_python
         uses: docker/build-push-action@v4
@@ -84,8 +90,8 @@ jobs:
             PYTHON_MICRO_VERSION=${{ matrix.python_micro_version }}
           push: true
           tags: |
-            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ steps.extract_minor_version.outputs.minor_version }}
-            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}
+            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ steps.extract_minor_version.outputs.minor_version }}-{{ env.SHA }}
+            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}-{{ env.SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
