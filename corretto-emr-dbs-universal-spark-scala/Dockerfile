@@ -9,7 +9,7 @@
 # for more details about the base image (tag: infrahelpers/dpp:jdk{JDK_VERSION})
 #
 ARG SBT_VERSION
-FROM infrahelpers/dpp:jdk8-${SBT_VERSION}
+FROM infrahelpers/dpp:jdk8
 
 LABEL authors="Antoine Chenon<antoine.chenon@decathlon.com>"
 
