@@ -8,8 +8,9 @@
 # See https://github.com/data-engineering-helpers/dpp-images/tree/main/coretto-emr-dbs-universal-base/Dockerfile
 # for more details about the base image (tag: infrahelpers/dpp:jdk{JDK_VERSION})
 #
-ARG SBT_VERSION
 FROM infrahelpers/dpp:jdk8
+
+ARG SBT_VERSION
 
 LABEL authors="Antoine Chenon<antoine.chenon@decathlon.com>"
 
@@ -17,4 +18,4 @@ LABEL authors="Antoine Chenon<antoine.chenon@decathlon.com>"
 RUN yum -y update && yum clean all
 
 # Install sbt
-RUN rm -f /etc/yum.repos.d/bintray-rpm.repo; curl -L https://www.scala-sbt.org/sbt-rpm.repo > sbt-rpm.repo; mv sbt-rpm.repo /etc/yum.repos.d/; yum -y install sbt-${SBT_VERSION}-0; sbt --version
+RUN rm -f /etc/yum.repos.d/bintray-rpm.repo; curl -L https://www.scala-sbt.org/sbt-rpm.repo > sbt-rpm.repo; mv sbt-rpm.repo /etc/yum.repos.d/; yum -y install sbt-${SBT_VERSION}-0
