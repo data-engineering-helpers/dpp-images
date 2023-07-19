@@ -90,8 +90,8 @@ jobs:
             PYTHON_MICRO_VERSION=${{ matrix.python_micro_version }}
           push: true
           tags: |
-            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ steps.extract_minor_version.outputs.minor_version }}-{{ env.SHA }}
-            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}-{{ env.SHA }}
+            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ steps.extract_minor_version.outputs.minor_version }}-${{ env.SHA }}
+            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}-${{ env.SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
