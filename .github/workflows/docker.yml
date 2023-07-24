@@ -10,17 +10,26 @@ jobs:
     strategy:
       matrix:
         jdk_version: [8, 11]
+        platform:
+          - linux/amd64
+          - linux/arm/v6
+          - linux/arm/v7
+          - linux/arm64
     environment: docker-hub
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
 
       - name: Set up Docker Buildx
         id: buildx
@@ -42,6 +51,7 @@ jobs:
           tags: infrahelpers/dpp:jdk${{ matrix.jdk_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: ${{ matrix.platform }}
 
   build_scala_images:
     needs: build_base_images
@@ -86,12 +96,18 @@ jobs:
       matrix:
         jdk_version: [8, 11]
         python_micro_version: [3.8.16, 3.9.16, 3.10.11, 3.11.3 ]  # Use the latest micro versions of each minor version
+        platform:
+          - linux/amd64
+          - linux/arm/v6
+          - linux/arm/v7
+          - linux/arm64
     environment: docker-hub
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -131,4 +147,5 @@ jobs:
             infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}-${{ env.SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: ${{ matrix.platform }}
 
