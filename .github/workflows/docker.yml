@@ -46,7 +46,7 @@ jobs:
           tags: infrahelpers/dpp:jdk${{ matrix.jdk_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          platform: linux/amd64,linux/arm64/v8
+          platforms: linux/amd64,linux/arm64/v8
 
   build_scala_images:
     needs: build_base_images
@@ -138,5 +138,5 @@ jobs:
             infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}-${{ env.SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          platform: linux/amd64,linux/arm64/v8
+          platforms: linux/amd64,linux/arm64/v8
 
