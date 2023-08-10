@@ -71,6 +71,8 @@ applications / Data Processing Pipeline (DPP).
     https://github.com/cloud-helpers/cloud-python-images
   + Docker Cloud:
     https://cloud.docker.com/u/infrahelpers/repository/docker/infrahelpers/cloud-python
+* Amazon-maintained OCI images for Machine Learning (ML):
+  https://github.com/aws/deep-learning-containers
 * General purpose C++ and Python with Debian OCI images:
   + GitHub:
     https://github.com/cpp-projects-showcase/docker-images/tree/master/debian10
