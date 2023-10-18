@@ -53,7 +53,7 @@ jobs:
     needs: build_base_images
     strategy:
       matrix:
-        sbt_version: [1.8.2, 1.8.3, 1.9.0, 1.9.1, 1.9.2]
+        sbt_version: [1.8.2, 1.8.3, 1.9.0, 1.9.1, 1.9.2, 1.9.3, 1.9.4, 1.9.6]
     environment: docker-hub
     runs-on: ubuntu-latest
     steps:
@@ -70,6 +70,12 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Load short sha
+        uses: benjlevesque/short-sha@v2.2
+        id: short-sha
+        with:
+          length: 7
+
       - name: Build corretto with sbt installed
         id: docker_build_corretto_sbt
         uses: docker/build-push-action@v4
@@ -82,9 +88,12 @@ jobs:
             JDK_VERSION=8
             SBT_VERSION=${{ matrix.sbt_version }}
           push: true
-          tags: infrahelpers/dpp:jdk8-sbt${{ matrix.sbt_version }}
+          tags: |
+            infrahelpers/dpp:jdk8-sbt${{ matrix.sbt_version }}
+            infrahelpers/dpp:jdk8-sbt${{ matrix.sbt_version }}-${{ env.SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64/v8
 
   build_python_images:
     needs: build_base_images
