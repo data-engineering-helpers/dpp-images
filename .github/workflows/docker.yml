@@ -44,7 +44,9 @@ jobs:
           build-args: |
             JDK_VERSION=${{ matrix.jdk_version }}
           push: true
-          tags: infrahelpers/dpp:jdk${{ matrix.jdk_version }}
+          tags: |
+            infrahelpers/dpp:jdk${{ matrix.jdk_version }}
+            infrahelpers/dpp:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64/v8
@@ -91,6 +93,7 @@ jobs:
           tags: |
             infrahelpers/dpp:jdk8-sbt${{ matrix.sbt_version }}
             infrahelpers/dpp:jdk8-sbt${{ matrix.sbt_version }}-${{ env.SHA }}
+            infrahelpers/dpp:jdk8-sbt
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64/v8
@@ -144,8 +147,11 @@ jobs:
             PYTHON_MICRO_VERSION=${{ matrix.python_micro_version }}
           push: true
           tags: |
+            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ steps.extract_minor_version.outputs.minor_version }}
             infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ steps.extract_minor_version.outputs.minor_version }}-${{ env.SHA }}
+            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}
             infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}-${{ env.SHA }}
+            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64/v8

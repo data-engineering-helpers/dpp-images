@@ -1,6 +1,14 @@
 Container images focusing on Data Processing Pipelines (DPP)
 ============================================================
 
+# Table of Content (ToC)
+* [Overview](#overview)
+  * [See also](#see-also)
+* [Simple use](#simple-use)
+* [Build your own container image](#build-your-own-container-image)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go)
+
 # Overview
 [That project](https://github.com/data-engineering-helpers/dpp-images)
 produces [OCI](https://opencontainers.org/)
@@ -19,9 +27,9 @@ the OCI imaages are built and published on
 
 These OCI images are aimed at deploying Data Engineering applications,
 typically Data Processing Pipelines (DPP), on
-[Modern Data Stack (MDS)](https://www.montecarlodata.com/blog-what-is-a-data-platform-and-how-to-build-one/)
+[Modern Data Stack (MDS)](https://www.montecarlodata.com/blog-what-is-a-data-platform-and-how-to-build-one/).
 
-The author of this repository also maintains general purpose cloud
+The authors of this repository also maintain general purpose cloud
 Python OCI images in a
 [dedicated GitHub repository](https://github.com/cloud-helpers/cloud-python-images/)
 and
@@ -29,20 +37,20 @@ and
 
 Thanks to
 [Docker multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/),
-one can easily have in the same Docker specification files two images, one for
+one can easily have in a same Docker specification file two images, one for
 every day data engineering work, and the other one to deploy the corresponding
 applications onto production environments.
 
 The Docker images of this repository just add various utilities to make it
 work out of the box with cloud vendors (_e.g._, Azure and AWS command-line
-utilities) and cloud-native tools (_e.g._, Pachyderm), on top of the native
+utilities) and cloud-native tools (_e.g._, S3-Mountpoint), on top of the native
 images maintained by the
 [AWS-supported Corretto](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/what-is-corretto-8.html).
 They also add specific Python versions.
 
 In the OCI image, Python packages are installed by the `pip` utility.
 For testing purposes, outside of the container, Python virtual environments
-may be installed thanks to Pyenv and `pipenv`, as detailed in the
+may be installed thanks to PyEnv and `pipenv`, as detailed in the
 [dedicated procedure](http://github.com/machine-learning-helpers/induction-python/tree/master/installation/virtual-env)
 on the
 [Python induction notebook sub-project](http://github.com/machine-learning-helpers/induction-python).
@@ -91,16 +99,21 @@ applications / Data Processing Pipeline (DPP).
     - https://github.com/docker-library/python/tree/master/3.10/buster
   + [Python 3.9](https://github.com/docker-library/python/tree/master/3.9)
     - https://github.com/docker-library/python/tree/master/3.9/buster
+* AWS cloud:
+  [GitHub - Data Engineering Helpers - Knowledge Sharing - AWS](https://github.com/data-engineering-helpers/ks-cheat-sheets/blob/main/clouds/aws/)
+* Kubenertes:
+  [GitHub - Data Engineering Helpers - Knowledge Sharing - Kubernetes (k8s)](https://github.com/data-engineering-helpers/ks-cheat-sheets/blob/main/frameworks/k8s/)
 
 # Simple use
-* Download the Docker image:
+* Download the Docker images:
 ```bash
-$ docker pull infrahelpers/dpp:py311
+$ docker pull infrahelpers/dpp:jdk11-python3.9
+  docker pull infrahelpers/dpp:jdk11-sbt1.9.7
 ```
 
 * Launch a Spark application:
 ```bash
-$ docker run -it infrahelpers/dpp:311
+$ docker run -it --rm infrahelpers/dpp:jdk11-python3.9
 ```
 
 # Build your own container image
@@ -129,11 +142,13 @@ $ docker build -t infrahelpers/dpp:jdk$JDK_VERSION --build-arg JDK_VERSION=$JDK_
 ```bash
 $ docker build -t infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION --build-arg JDK_VERSION=$JDK_VERSION --build-arg PYTHON_MINOR_VERSION=$PYTHON_MINOR_VERSION --build-arg PYTHON_MICRO_VERSION=$PYTHON_MICRO_VERSION corretto-emr-dbs-universal-pyspark
   docker tag infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MICRO_VERSION
+  docker tag infrahelpers/dpp:jdk$JDK_VERSION-python
 ```
   + Amazon Linux 2 for Elastic Map Reduce (EMR) 6 and DataBricks
     with SBT and Scala, with more freedom on its version:
 ```bash
 $ docker build -t infrahelpers/dpp:jdk$JDK_VERSION-sbt$SBT_VERSION --build-arg JDK_VERSION=$JDK_VERSION --build-arg SBT_VERSION=$SBT_VERSION corretto-emr-dbs-universal-spark-scala
+  docker tag infrahelpers/dpp:jdk$JDK_VERSION-sbt$SBT_VERSION infrahelpers/dpp:jdk$JDK_VERSION-sbt
 ```
 
 * In addition to what the Docker Hub builds, the CI/CD (GitHub Actions)
@@ -153,7 +168,9 @@ $ docker login
   docker push infrahelpers/dpp:jdk$JDK_VERSION
   docker push infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION
   docker push infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MICRO_VERSION
+  docker push infrahelpers/dpp:jdk$JDK_VERSION-python
   docker push infrahelpers/dpp:jdk$JDK_VERSION-sbt$SBT_VERSION
+  docker push infrahelpers/dpp:jdk$JDK_VERSION-sbt
 ```
 
 * Choose which image should be the latest, tag it and upload it to Docker Hub:
