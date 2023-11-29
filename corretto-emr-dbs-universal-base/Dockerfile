@@ -1,7 +1,7 @@
 #
 # Source: https://github.com/data-engineering-helpers/dpp-images/tree/main/pyspark-coretto-emr-dbs-universal-base/Dockerfile
 # On Docker Hub: https://hub.docker.com/repository/docker/infrahelpers/dpp/general
-# Convention for the  tags of the generated images:
+# Convention for the tags of the generated images:
 # * infrahelpers/dpp:jdk{JDK_VERSION} e.g.:
 #  * infrahelpers/dpp:jdk8
 #  * infrahelpers/dpp:jdk11
@@ -17,7 +17,7 @@
 # (see the pyspark-py3X/ directories), with specific versions.
 # Note that:
 # * DataBricks uses Python 3.8 internally by default
-# * AWS EMR uses Python 3.7.10 by default
+# * AWS EMR uses Python 3.7.16 by default
 #
 # AWS Corretto / EMR
 # ==================

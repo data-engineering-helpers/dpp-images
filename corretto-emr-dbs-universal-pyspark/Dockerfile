@@ -1,11 +1,11 @@
 #
-# Source: https://github.com/data-engineering-helpers/dpp-images/tree/main/pyspark-py310/Dockerfile
+# Source: https://github.com/data-engineering-helpers/dpp-images/tree/main/corretto-emr-dbs-universal-pyspark/Dockerfile
 # On Docker Hub: https://hub.docker.com/repository/docker/infrahelpers/dpp/general
 # Usual Docker tags:
 # * infrahelpers/dpp:jdk{JDK_VERSION}-python{PYTHON_MINOR_VERSION}
 # * infrahelpers/dpp:jdk{JDK_VERSION}-python{PYTHON_MICRO_VERSION}
 #
-# Image containing python installation, to be accessed by EMR and Databricks (for pyspark)
+# Image containing python installation, to be accessed by EMR and Databricks (for PySpark)
 # See https://github.com/data-engineering-helpers/dpp-images/tree/main/coretto-emr-dbs-universal-base/Dockerfile
 # for more details about the base image (tag: infrahelpers/dpp:jdk{JDK_VERSION})
 #
@@ -28,7 +28,7 @@ ENV PYTHON_MICRO_VERSION=$PYTHON_MICRO_VERSION
 ENV PYSPARK_PYTHON="/databricks/python3/bin/python3"
 
 # Update the OS
-RUN yum -y update && yum clean all
+RUN yum -y update && yum clean all && rm -rf /var/cache/yum
 
 # Install the PYTHON_MICRO_VERSION version of Python
 RUN curl -kLs \
@@ -38,13 +38,14 @@ RUN curl -kLs \
 	rm -f Python-${PYTHON_MICRO_VERSION}.tgz && \
 	cd Python-${PYTHON_MICRO_VERSION} && \
 	./configure --prefix=/usr --enable-optimizations && \
-	make && \
-	make altinstall
+	make && make altinstall && \
+	cd .. && rm -rf Python-${PYTHON_MICRO_VERSION}
 
 # Set the PYTHON_MICRO_VERSION version of Python as system Python
 # This is what is used by AWS EMR
-RUN cp -f /usr/bin/python${PYTHON_MINOR_VERSION} /usr/bin/python3 && \
-	python3 --version
+RUN cd /usr/bin && \
+	rm -f /usr/bin/python3 && ln -s python${PYTHON_MINOR_VERSION} python3 \
+	&& cd .. && python -V && python3 -V
 
 # Install a virtual environment in /databricks/python3
 RUN python3 -mpip install -U pip && python3 -mpip install virtualenv && \
