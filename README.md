@@ -113,37 +113,52 @@ $ cd dpp
 ```
 
 * Build the OCI images (here with Docker, but any other tool may be used):
-  + Amazon Linux 2 for Elastic Map Reduce (EMR) 6 and DataBricks
-    with a single Python installation, with more freedom on its version,
-	with JDK 8:
+  + Setup the requested versions for the various stacks:
 ```bash
-$ docker build -t infrahelpers/cloud-python:pyspark-py311 pyspark-py311
+$ export JDK_VERSION="11" # or "8"
+  export PYTHON_MINOR_VERSION="3.9"
+  export PYTHON_MICRO_VERSION="3.9.18"
+  export SBT_VERSION="1.9.7"
+```
+  + Amazon Linux 2 for Elastic Map Reduce (EMR) 6 and DataBricks base image:
+```bash
+$ docker build -t infrahelpers/dpp:jdk$JDK_VERSION --build-arg JDK_VERSION=$JDK_VERSION corretto-emr-dbs-universal-base
 ```
   + Amazon Linux 2 for Elastic Map Reduce (EMR) 6 and DataBricks
-    with a single Python installation, with more freedom on its version,
-	with JDK 11:
+    with a single Python installation, with more freedom on its version:
 ```bash
-$ docker build -t infrahelpers/cloud-python:pyspark-py311-jdk11 pyspark-py311-jdk11
+$ docker build -t infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION --build-arg JDK_VERSION=$JDK_VERSION --build-arg PYTHON_MINOR_VERSION=$PYTHON_MINOR_VERSION --build-arg PYTHON_MICRO_VERSION=$PYTHON_MICRO_VERSION corretto-emr-dbs-universal-pyspark
+  docker tag infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MICRO_VERSION
+```
+  + Amazon Linux 2 for Elastic Map Reduce (EMR) 6 and DataBricks
+    with SBT and Scala, with more freedom on its version:
+```bash
+$ docker build -t infrahelpers/dpp:jdk$JDK_VERSION-sbt$SBT_VERSION --build-arg JDK_VERSION=$JDK_VERSION --build-arg SBT_VERSION=$SBT_VERSION corretto-emr-dbs-universal-spark-scala
 ```
 
 * In addition to what the Docker Hub builds, the CI/CD (GitHub Actions)
-  pipeline also builds the `infrahelpers/dpp` images,
-  from the
-  [`pyspark-coretto-8-emr-dbs-universal-python/` directory](pyspark-coretto-8-emr-dbs-universal-python/),
-  on two CPU architectures, namely the classical AMD64 and the newer ARM64
+  pipeline also builds the `infrahelpers/dpp` images on two CPU architectures,
+  namely the classical AMD64 and the newer ARM64, from the
+  + [`corretto-emr-dbs-universal-base/` directory](corretto-emr-dbs-universal-base/),
+  + [`corretto-emr-dbs-universal-pyspark/` directory](corretto-emr-dbs-universal-pyspark/),
+  + [`corretto-emr-dbs-universal-spark-scala/` directory](corretto-emr-dbs-universal-spark-scala/),
+    
 
 * (Optional) Push the newly built images to Docker Hub.
   That step is usually not needed, as the images are automatically
   built everytime there is
-  [a change on GitHub](https://github.com/data-engineering-helpers/dpp-images/commits/master))
+  [a change on GitHub](https://github.com/data-engineering-helpers/dpp-images/commits/main))
 ```bash
 $ docker login
-$ docker push infrahelpers/dpp:py311
+  docker push infrahelpers/dpp:jdk$JDK_VERSION
+  docker push infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION
+  docker push infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MICRO_VERSION
+  docker push infrahelpers/dpp:jdk$JDK_VERSION-sbt$SBT_VERSION
 ```
 
 * Choose which image should be the latest, tag it and upload it to Docker Hub:
 ```bash
-$ docker tag infrahelpers/dpp:py311 infrahelpers/dpp:latest
+$ docker tag infrahelpers/dpp:jdk$JDK_VERSION infrahelpers/dpp:latest
 $ docker push infrahelpers/dpp:latest
 ```
 
