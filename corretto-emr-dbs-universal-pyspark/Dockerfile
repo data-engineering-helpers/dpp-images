@@ -45,11 +45,13 @@ RUN curl -kLs \
 # This is what is used by AWS EMR
 RUN cd /usr/bin && \
 	rm -f /usr/bin/python3 && ln -s python${PYTHON_MINOR_VERSION} python3 \
-	&& cd .. && python -V && python3 -V
+	&& cd .. && python -V && python3 -V && \
+	python3 -mpip install -U pip
 
 # Install a virtual environment in /databricks/python3
 RUN python3 -mpip install -U pip && python3 -mpip install virtualenv && \
 	virtualenv --system-site-packages /databricks/python3 && \
 	chown -R ubuntu:ubuntu /databricks/python3 && \
-	/databricks/python3/bin/python --version
+	/databricks/python3/bin/python -V && \
+	/databricks/python3/bin/python -mpip install -U pip
 

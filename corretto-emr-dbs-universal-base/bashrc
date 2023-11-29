@@ -11,6 +11,9 @@ if [ -f /etc/bashrc ]; then
         . /etc/bashrc
 fi
 
+# PATH
+export PATH="${HOME}/.local/bin:${PATH}"
+
 # Aliases
 alias rm='rm -i'
 alias cp='cp -i'
