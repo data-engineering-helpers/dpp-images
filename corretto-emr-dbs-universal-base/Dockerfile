@@ -75,9 +75,8 @@ RUN yum -y install procps net-tools hostname iproute coreutils \
 WORKDIR $HOME
 
 # Cloud helpers Shell scripts (https://github.com/cloud-helpers/k8s-job-wrappers)
-ENV KJW_VER="0.0.5"
-#RUN KJW_VER=$(curl -Ls https://api.github.com/repos/cloud-helpers/k8s-job-wrappers/tags|jq -r '.[].name'|grep "^v"|sort -r|head -1|cut -d'v' -f2,2)
-RUN curl -Ls \
+RUN KJW_VER=$(curl -Ls https://api.github.com/repos/cloud-helpers/k8s-job-wrappers/tags|jq -r '.[].name'|grep "^v"|sort -r|head -1|cut -d'v' -f2,2) && \
+	curl -Ls \
 	  https://github.com/cloud-helpers/k8s-job-wrappers/archive/refs/tags/v${KJW_VER}.tar.gz \
          -o k8s-job-wrappers.tar.gz && \
     tar zxf k8s-job-wrappers.tar.gz && rm -f k8s-job-wrappers.tar.gz && \
