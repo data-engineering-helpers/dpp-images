@@ -76,6 +76,7 @@ WORKDIR $HOME
 
 # Cloud helpers Shell scripts (https://github.com/cloud-helpers/k8s-job-wrappers)
 RUN KJW_VER=$(curl -Ls https://api.github.com/repos/cloud-helpers/k8s-job-wrappers/tags|jq -r '.[].name'|grep "^v"|sort -r|head -1|cut -d'v' -f2,2) && \
+	echo "KJW_VER=${KJW_VER}" && \
 	curl -Ls \
 	  https://github.com/cloud-helpers/k8s-job-wrappers/archive/refs/tags/v${KJW_VER}.tar.gz \
          -o k8s-job-wrappers.tar.gz && \

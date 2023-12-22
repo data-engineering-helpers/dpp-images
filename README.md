@@ -142,7 +142,7 @@ $ docker build -t infrahelpers/dpp:jdk$JDK_VERSION --build-arg JDK_VERSION=$JDK_
 ```bash
 $ docker build -t infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION --build-arg JDK_VERSION=$JDK_VERSION --build-arg PYTHON_MINOR_VERSION=$PYTHON_MINOR_VERSION --build-arg PYTHON_MICRO_VERSION=$PYTHON_MICRO_VERSION corretto-emr-dbs-universal-pyspark
   docker tag infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MICRO_VERSION
-  docker tag infrahelpers/dpp:jdk$JDK_VERSION-python
+  docker tag infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION infrahelpers/dpp:jdk$JDK_VERSION-python
 ```
   + Amazon Linux 2 for Elastic Map Reduce (EMR) 6 and DataBricks
     with SBT and Scala, with more freedom on its version:
