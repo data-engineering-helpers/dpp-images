@@ -3,8 +3,9 @@
 # On Docker Hub: https://hub.docker.com/repository/docker/infrahelpers/dpp/general
 # Convention for the tags of the generated images:
 # * infrahelpers/dpp:jdk{JDK_VERSION} e.g.:
-#  * infrahelpers/dpp:jdk8
+#  * infrahelpers/dpp:jdk17
 #  * infrahelpers/dpp:jdk11
+#  * infrahelpers/dpp:jdk8
 #
 # Base image for Data Processing Pipelines (DPP), with images
 # for specific Python versions
@@ -16,21 +17,25 @@
 # A pristine Python installation is performed by the downstream images
 # (see the pyspark-py3X/ directories), with specific versions.
 # Note that:
-# * DataBricks uses Python 3.8 internally by default
-# * AWS EMR uses Python 3.7.16 by default
+# * DataBricks uses Python 3.10 internally by default
+# * AWS EMR uses Python 3.9 by default
 #
 # AWS Corretto / EMR
 # ==================
-#  + https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/what-is-corretto-8.html
-#  + https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/docker-install.html
 #  + https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/docker-install.html
-# The underlying operating system (OS) is Amazon Linux 2, i.e., based on a
-# RedHat Linux 7 with some Amazon specific additions.
-# The Python version is 3.7.15 by default, if installed with the Linux
+#  + https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/docker-install.html
+#  + https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/what-is-corretto-8.html
+# The underlying operating system (OS) is:
+# * Amazon Linux 2023 (AL2023) for Corretto 17, based on a
+#   RedHat Linux 8 with some Amazon specific additions.
+# * Amazon Linux 2 for Corretto 11 and Corretto 8, based on a
+#   RedHat Linux 7 with some Amazon specific additions.
+# The Python version is 3.9 by default (on Corretto 17), if installed with the Linux
 # distribution.
-# Note that, up to at least version 6.9.0 of EMR, only Java 8 is supported.
-# With Java 11+, it generates errors like
+# Note that, for EMR versions lower than 6.x, only Java 8 was supported.
+# With Java 11+, it generated errors like
 # https://confluence.atlassian.com/confkb/unrecognized-jvm-gc-options-when-using-java-11-1002472841.html
+# From EMR 7.x, Java 17 is now fully supported.
 #
 # DataBricks
 # ==========
@@ -38,7 +43,7 @@
 #  + Base image on Docker Hub: https://hub.docker.com/r/databricksruntime/standard
 #     - Usual Docker tag: latest
 #
-# The underlying operating system (OS) is Ubuntu 18.04 LTS (Bionic Beaver).
+# The underlying operating system (OS) is Ubuntu 22.04 LTS (Jammy Jellyfish).
 # The Python installation has to be a virtual environment in
 # /databricks/python3, and Python is the main one (pristine, installed manually
 # by that container image)
@@ -68,26 +73,36 @@ RUN yum -y install procps net-tools hostname iproute coreutils \
 	zlib-devel bzip2-devel gzip \
 	openssl11-libs openssl11-devel \
 	autoconf automake libtool m4 gcc gcc-c++ cmake cmake3 libffi-devel \
-	readline-devel sqlite-devel jq fuse fuse-libs && \
+	readline-devel sqlite-devel fuse fuse-libs && \
 	yum clean all
 
 #
 WORKDIR $HOME
 
+# Install a newer jq version (as jq v1.5 seems to have some issues)
+RUN JQ_VER=$(curl -Ls https://api.github.com/repos/jqlang/jq/releases/latest|grep 'tag_name' | cut -d'-' -f2,2 | cut -d'"' -f1,1) && \
+	curl -Ls \
+	https://github.com/jqlang/jq/releases/download/jq-${JQ_VER}/jq-linux-amd64 -o /usr/local/bin/jq && \
+	chmod +x /usr/local/bin/jq
+
+# yq, the YAML CLI utility like jq, for YAML (https://github.com/mikefarah/yq)
+RUN YQ_VER=$(curl -Ls https://api.github.com/repos/mikefarah/yq/releases/latest | grep 'tag_name' | cut -d'v' -f2 | cut -d'"' -f1) && \
+	curl -Ls \
+	https://github.com/mikefarah/yq/releases/download/v${YQ_VER}/yq_linux_amd64 -o /usr/local/bin/yq && \
+	chmod +x /usr/local/bin/yq
+
 # Cloud helpers Shell scripts (https://github.com/cloud-helpers/k8s-job-wrappers)
 RUN KJW_VER=$(curl -Ls https://api.github.com/repos/cloud-helpers/k8s-job-wrappers/tags|jq -r '.[].name'|grep "^v"|sort -r|head -1|cut -d'v' -f2,2) && \
 	echo "KJW_VER=${KJW_VER}" && \
 	curl -Ls \
-	  https://github.com/cloud-helpers/k8s-job-wrappers/archive/refs/tags/v${KJW_VER}.tar.gz \
-         -o k8s-job-wrappers.tar.gz && \
+	https://github.com/cloud-helpers/k8s-job-wrappers/archive/refs/tags/v${KJW_VER}.tar.gz -o k8s-job-wrappers.tar.gz && \
     tar zxf k8s-job-wrappers.tar.gz && rm -f k8s-job-wrappers.tar.gz && \
     mv -f k8s-job-wrappers-${KJW_VER} /usr/local/ && \
     ln -s /usr/local/k8s-job-wrappers-${KJW_VER} /usr/local/k8s-job-wrappers
 
 # AWS: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
-RUN curl -Ls https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip \
-         -o awscliv2.zip && \
-    unzip -q awscliv2.zip && rm -f awscliv2.zip && ./aws/install && \
+RUN curl -Ls https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip && \
+	unzip -q awscliv2.zip && rm -f awscliv2.zip && ./aws/install && \
 	rm -rf ./aws
 
 # SAML-to-AWS (saml2aws)
@@ -97,7 +112,7 @@ RUN SAML2AWS_VER=$(curl -Ls https://api.github.com/repos/Versent/saml2aws/releas
 	https://github.com/Versent/saml2aws/releases/download/v${SAML2AWS_VER}/saml2aws_${SAML2AWS_VER}_linux_amd64.tar.gz -o saml2aws.tar.gz && \
 	tar zxf saml2aws.tar.gz && rm -f saml2aws.tar.gz README.md LICENSE.md && \
 	mv -f saml2aws /usr/local/bin/ && \
-    chmod 775 /usr/local/bin/saml2aws
+	chmod +x /usr/local/bin/saml2aws
 
 # Copy configuration in the user home, for the root user
 ADD bashrc $HOME/.bashrc

@@ -91,24 +91,32 @@ applications / Data Processing Pipeline (DPP).
   + Docker Cloud:
     https://cloud.docker.com/u/infrahelpers/repository/docker/artificialintelligence/python-light
 * [Native Python OCI images](https://github.com/docker-library/python):
-  + [Python 3.12](https://github.com/docker-library/python/tree/master/3.12-rc)
-    - https://github.com/docker-library/python/tree/master/3.12-rc/buster
+  + [Python 3.13-rc](https://github.com/docker-library/python/tree/master/3.13-rc)
+    - https://github.com/docker-library/python/tree/master/3.13-rc/bookworm
+  + [Python 3.12](https://github.com/docker-library/python/tree/master/3.12)
+    - https://github.com/docker-library/python/tree/master/3.12/bookworm
   + [Python 3.11](https://github.com/docker-library/python/tree/master/3.11)
-    - https://github.com/docker-library/python/tree/master/3.11/buster
+    - https://github.com/docker-library/python/tree/master/3.11/bookworm
   + [Python 3.10](https://github.com/docker-library/python/tree/master/3.10)
-    - https://github.com/docker-library/python/tree/master/3.10/buster
+    - https://github.com/docker-library/python/tree/master/3.10/bookworm
   + [Python 3.9](https://github.com/docker-library/python/tree/master/3.9)
-    - https://github.com/docker-library/python/tree/master/3.9/buster
+    - https://github.com/docker-library/python/tree/master/3.9/bookworm
 * AWS cloud:
   [GitHub - Data Engineering Helpers - Knowledge Sharing - AWS](https://github.com/data-engineering-helpers/ks-cheat-sheets/blob/main/clouds/aws/)
 * Kubenertes:
   [GitHub - Data Engineering Helpers - Knowledge Sharing - Kubernetes (k8s)](https://github.com/data-engineering-helpers/ks-cheat-sheets/blob/main/frameworks/k8s/)
 
 # Simple use
-* Download the Docker images:
+* Download the Docker images
+  + JDK17:
+```bash
+$ docker pull infrahelpers/dpp:jdk17-python3.9
+  docker pull infrahelpers/dpp:jdk17-sbt1.9.8
+```
+  + JDK11:
 ```bash
 $ docker pull infrahelpers/dpp:jdk11-python3.9
-  docker pull infrahelpers/dpp:jdk11-sbt1.9.7
+  docker pull infrahelpers/dpp:jdk11-sbt1.9.8
 ```
 
 * Launch a Spark application:
@@ -128,23 +136,23 @@ $ cd dpp
 * Build the OCI images (here with Docker, but any other tool may be used):
   + Setup the requested versions for the various stacks:
 ```bash
-$ export JDK_VERSION="11" # or "8"
+$ export JDK_VERSION="17" # or "11" or "8"
   export PYTHON_MINOR_VERSION="3.9"
   export PYTHON_MICRO_VERSION="3.9.18"
-  export SBT_VERSION="1.9.7"
+  export SBT_VERSION="1.9.8"
 ```
-  + Amazon Linux 2 for Elastic Map Reduce (EMR) 6 and DataBricks base image:
+  + Amazon Linux 2023 (AL2023) for Elastic Map Reduce (EMR) 7.x and DataBricks base image:
 ```bash
 $ docker build -t infrahelpers/dpp:jdk$JDK_VERSION --build-arg JDK_VERSION=$JDK_VERSION corretto-emr-dbs-universal-base
 ```
-  + Amazon Linux 2 for Elastic Map Reduce (EMR) 6 and DataBricks
+  + Amazon Linux 2023 (AL2023) for Elastic Map Reduce (EMR) 7.x and DataBricks
     with a single Python installation, with more freedom on its version:
 ```bash
 $ docker build -t infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION --build-arg JDK_VERSION=$JDK_VERSION --build-arg PYTHON_MINOR_VERSION=$PYTHON_MINOR_VERSION --build-arg PYTHON_MICRO_VERSION=$PYTHON_MICRO_VERSION corretto-emr-dbs-universal-pyspark
   docker tag infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MICRO_VERSION
   docker tag infrahelpers/dpp:jdk$JDK_VERSION-python$PYTHON_MINOR_VERSION infrahelpers/dpp:jdk$JDK_VERSION-python
 ```
-  + Amazon Linux 2 for Elastic Map Reduce (EMR) 6 and DataBricks
+  + Amazon Linux 2023 (AL2023) for Elastic Map Reduce (EMR) 7.x and DataBricks
     with SBT and Scala, with more freedom on its version:
 ```bash
 $ docker build -t infrahelpers/dpp:jdk$JDK_VERSION-sbt$SBT_VERSION --build-arg JDK_VERSION=$JDK_VERSION --build-arg SBT_VERSION=$SBT_VERSION corretto-emr-dbs-universal-spark-scala

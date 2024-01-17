@@ -10,7 +10,7 @@ jobs:
   build_base_images:
     strategy:
       matrix:
-        jdk_version: [8, 11]
+        jdk_version: [8, 11, 17]
     environment: docker-hub
     runs-on: ubuntu-latest
     steps:
@@ -102,8 +102,8 @@ jobs:
     needs: build_base_images
     strategy:
       matrix:
-        jdk_version: [8, 11]
-        python_micro_version: [3.8.16, 3.9.16, 3.10.11, 3.11.3 ]  # Use the latest micro versions of each minor version
+        jdk_version: [8, 11, 17]
+        python_micro_version: [3.8.18, 3.9.18, 3.10.13, 3.11.7, 3.12.1]  # Use the latest micro versions of each minor version
 
     environment: docker-hub
     runs-on: ubuntu-latest
