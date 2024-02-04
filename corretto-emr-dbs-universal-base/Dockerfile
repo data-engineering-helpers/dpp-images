@@ -67,7 +67,7 @@ RUN yum -y update && \
 	yum clean all
 
 # Install a few more utilities, including pre-requisites for Python
-RUN yum -y install procps net-tools hostname iproute coreutils \
+RUN yum -y install procps net-tools hostname iproute coreutils bind-utils \
 	less htop passwd which sudo man vim git tar tree \
 	wget curl file bash-completion keyutils \
 	zlib-devel bzip2-devel gzip \
