@@ -55,7 +55,7 @@ jobs:
     needs: build_base_images
     strategy:
       matrix:
-        sbt_version: [1.8.2, 1.8.3, 1.9.0, 1.9.1, 1.9.2, 1.9.3, 1.9.4, 1.9.6]
+        sbt_version: [1.9.9]
     environment: docker-hub
     runs-on: ubuntu-latest
     steps:
@@ -103,7 +103,7 @@ jobs:
     strategy:
       matrix:
         jdk_version: [8, 11, 17]
-        python_micro_version: [3.8.18, 3.9.18, 3.10.13, 3.11.7, 3.12.1]  # Use the latest micro versions of each minor version
+        python_micro_version: [3.8.19, 3.9.19, 3.10.14, 3.11.9, 3.12.2]  # Use the latest micro versions of each minor version
 
     environment: docker-hub
     runs-on: ubuntu-latest
