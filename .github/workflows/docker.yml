@@ -1,4 +1,12 @@
-name: Push Docker images on Docker Hub
+#
+# File: https://github.com/data-engineering-helpers/dpp-images/blob/main/.github/workflows/docker.yml
+# 
+# Dockerfiles:
+# * Base: https://github.com/data-engineering-helpers/dpp-images/blob/main/corretto-emr-dbs-universal-base/Dockerfile
+# * Python: https://github.com/data-engineering-helpers/dpp-images/tree/main/corretto-emr-dbs-universal-pyspark/Dockerfile
+# * Scala: https://github.com/data-engineering-helpers/dpp-images/blob/main/corretto-emr-dbs-universal-spark-scala/Dockerfile
+#
+name: Build and publish container images onto Docker Hub
 
 on:
   push:
@@ -10,33 +18,41 @@ jobs:
   build_base_images:
     strategy:
       matrix:
+        # https://www.java.com/releases/matrix/
         jdk_version: [8, 11, 17]
+
     environment: docker-hub
+
     runs-on: ubuntu-latest
+
     steps:
+      # https://github.com/actions/checkout
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
+      # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
+      # https://github.com/docker/login-action
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-
+      # https://github.com/docker/setup-buildx-action
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Run privileged
         run: sudo docker run --privileged --rm tonistiigi/binfmt --install arm64
 
+      # https://github.com/docker/build-push-action
       - name: Build base corretto image
         id: docker_build_corretto_base
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: ./corretto-emr-dbs-universal-base
@@ -55,37 +71,45 @@ jobs:
     needs: build_base_images
     strategy:
       matrix:
-        sbt_version: [1.9.9]
-    environment: docker-hub
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+        sbt_version: [1.10.2]
 
+    environment: docker-hub
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # https://github.com/docker/login-action
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # https://github.com/docker/setup-buildx-action
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - name: Load short sha
-        uses: benjlevesque/short-sha@v2.2
+      # https://github.com/benjlevesque/short-sha
+      - name: Load short SHA1
+        uses: benjlevesque/short-sha@v3.0
         id: short-sha
         with:
           length: 7
 
+      # https://github.com/docker/build-push-action
       - name: Build corretto with sbt installed
         id: docker_build_corretto_sbt
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: ./corretto-emr-dbs-universal-spark-scala
           file: ./corretto-emr-dbs-universal-spark-scala/Dockerfile
-          # Only Java 8 is supported for Spark
+          # As of end 2024, only Java 8 is supported for Spark
           build-args: |
             JDK_VERSION=8
             SBT_VERSION=${{ matrix.sbt_version }}
@@ -102,25 +126,36 @@ jobs:
     needs: build_base_images
     strategy:
       matrix:
+        # https://www.java.com/releases/matrix/
         jdk_version: [8, 11, 17]
-        python_micro_version: [3.8.19, 3.9.19, 3.10.14, 3.11.9, 3.12.2]  # Use the latest micro versions of each minor version
+        # Use the latest releases for each minor version:
+        # https://www.python.org/downloads/source/
+        python_micro_version: [3.8.20, 3.9.20, 3.10.15, 3.11.10, 3.12.7]
 
     environment: docker-hub
+
     runs-on: ubuntu-latest
+
     steps:
+      # https://github.com/actions/checkout
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
+
+      # https://github.com/docker/login-action
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # https://github.com/docker/setup-buildx-action
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Extract Minor Version
         id: extract_minor_version
@@ -128,15 +163,17 @@ jobs:
           minor_version=$(echo "${{ matrix.python_micro_version }}" | cut -d. -f1-2)
           echo "minor_version=${minor_version}" >> $GITHUB_OUTPUT
 
+      # https://github.com/benjlevesque/short-sha
       - name: Load short sha
-        uses: benjlevesque/short-sha@v2.2
+        uses: benjlevesque/short-sha@v3.0
         id: short-sha
         with:
           length: 7
 
-      - name: Build corretto with EMR / DBS python installed
+      # https://github.com/docker/build-push-action
+      - name: Build Corretto with EMR-/Databricks-compatible Python installed
         id: docker_build_corretto_python
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: ./corretto-emr-dbs-universal-pyspark
