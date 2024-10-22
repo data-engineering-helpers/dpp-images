@@ -22,16 +22,17 @@
 #
 # AWS Corretto / EMR
 # ==================
-#  + https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/docker-install.html
-#  + https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/docker-install.html
-#  + https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/what-is-corretto-8.html
+# * https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/docker-install.html
+# * https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/docker-install.html
+# * https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/what-is-corretto-8.html
+#
 # The underlying operating system (OS) is:
 # * Amazon Linux 2023 (AL2023) for Corretto 17, based on a
 #   RedHat Linux 8 with some Amazon specific additions.
 # * Amazon Linux 2 for Corretto 11 and Corretto 8, based on a
 #   RedHat Linux 7 with some Amazon specific additions.
-# The Python version is 3.9 by default (on Corretto 17), if installed with the Linux
-# distribution.
+# The Python version is 3.9 by default (on Corretto 17), if installed with
+# the Linux distribution.
 # Note that, for EMR versions lower than 6.x, only Java 8 was supported.
 # With Java 11+, it generated errors like
 # https://confluence.atlassian.com/confkb/unrecognized-jvm-gc-options-when-using-java-11-1002472841.html
@@ -39,9 +40,9 @@
 #
 # DataBricks
 # ==========
-#  + Base image Dockerfile: https://github.com/databricks/containers/tree/master/ubuntu/standard
-#  + Base image on Docker Hub: https://hub.docker.com/r/databricksruntime/standard
-#     - Usual Docker tag: latest
+# * Base image Dockerfile: https://github.com/databricks/containers/tree/master/ubuntu/standard
+# * Base image on Docker Hub: https://hub.docker.com/r/databricksruntime/standard
+#   * Usual Docker tag: latest
 #
 # The underlying operating system (OS) is Ubuntu 22.04 LTS (Jammy Jellyfish).
 # The Python installation has to be a virtual environment in
@@ -104,6 +105,10 @@ RUN KJW_VER=$(curl -Ls https://api.github.com/repos/cloud-helpers/k8s-job-wrappe
 RUN curl -Ls https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip && \
 	unzip -q awscliv2.zip && rm -f awscliv2.zip && ./aws/install && \
 	rm -rf ./aws
+
+# HashiCorp Vault (https://developer.hashicorp.com/vault/install)
+RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo && \
+    yum -y install vault
 
 # SAML-to-AWS (saml2aws)
 # https://github.com/Versent/saml2aws
