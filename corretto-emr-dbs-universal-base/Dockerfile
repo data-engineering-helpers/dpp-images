@@ -63,7 +63,7 @@ ENV PYSPARK_DRIVER_PYTHON="python3"
 # Update the OS and install a few packages useful for software development
 # (needed for some Python modules like SHAP)
 RUN yum -y update && \
-	yum -y install yum-utils && \
+	yum -y install yum-utils shadow-utils && \
 	yum -y groupinstall development && \
 	yum clean all
 
@@ -107,7 +107,7 @@ RUN curl -Ls https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv
 	rm -rf ./aws
 
 # HashiCorp Vault (https://developer.hashicorp.com/vault/install)
-RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo && \
+RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo && \
     yum -y install vault
 
 # SAML-to-AWS (saml2aws)
