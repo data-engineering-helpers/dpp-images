@@ -49,7 +49,7 @@
 # /databricks/python3, and Python is the main one (pristine, installed manually
 # by that container image)
 #
-ARG JDK_VERSION
+ARG JDK_VERSION="8"
 FROM amazoncorretto:${JDK_VERSION}
 
 LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>, Nicolas Gibaud <nicolas.gibaud.partner@decathlon.com>"
@@ -65,7 +65,7 @@ ENV PYSPARK_DRIVER_PYTHON="python3"
 RUN yum -y update && \
 	yum -y install yum-utils shadow-utils && \
 	yum -y groupinstall development && \
-	yum clean all
+	yum clean all && rm -rf /var/cache/yum
 
 # Install a few more utilities, including pre-requisites for Python
 RUN yum -y install procps net-tools hostname iproute coreutils bind-utils \
@@ -75,7 +75,7 @@ RUN yum -y install procps net-tools hostname iproute coreutils bind-utils \
 	openssl11-libs openssl11-devel \
 	autoconf automake libtool m4 gcc gcc-c++ cmake cmake3 libffi-devel \
 	readline-devel sqlite-devel fuse fuse-libs && \
-	yum clean all
+	yum clean all && rm -rf /var/cache/yum
 
 #
 WORKDIR $HOME
@@ -110,14 +110,14 @@ RUN curl -Ls https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv
 RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo && \
     yum -y install vault
 
-# SAML-to-AWS (saml2aws)
-# https://github.com/Versent/saml2aws
-RUN SAML2AWS_VER=$(curl -Ls https://api.github.com/repos/Versent/saml2aws/releases/latest | grep 'tag_name' | cut -d'v' -f2 | cut -d'"' -f1) && \
-	curl -Ls \
-	https://github.com/Versent/saml2aws/releases/download/v${SAML2AWS_VER}/saml2aws_${SAML2AWS_VER}_linux_amd64.tar.gz -o saml2aws.tar.gz && \
-	tar zxf saml2aws.tar.gz && rm -f saml2aws.tar.gz README.md LICENSE.md && \
-	mv -f saml2aws /usr/local/bin/ && \
-	chmod +x /usr/local/bin/saml2aws
+# SAML-to-AWS (saml2aws) - https://github.com/Versent/saml2aws
+# AWS SSO is becoming mainstream (and replacing SAML2AWS)
+#RUN SAML2AWS_VER=$(curl -Ls https://api.github.com/repos/Versent/saml2aws/releases/latest | grep 'tag_name' | cut -d'v' -f2 | cut -d'"' -f1) && \
+#	curl -Ls \
+#	https://github.com/Versent/saml2aws/releases/download/v${SAML2AWS_VER}/saml2aws_${SAML2AWS_VER}_linux_amd64.tar.gz -o saml2aws.tar.gz && \
+#	tar zxf saml2aws.tar.gz && rm -f saml2aws.tar.gz README.md LICENSE.md && \
+#	mv -f saml2aws /usr/local/bin/ && \
+#	chmod +x /usr/local/bin/saml2aws
 
 # Copy configuration in the user home, for the root user
 ADD bashrc $HOME/.bashrc
@@ -130,4 +130,7 @@ RUN useradd ubuntu && \
 # Create a /databricks/python3 directory and set environment and permissions
 # This is what is used by DataBricks
 RUN mkdir -p /databricks/python3 && chown -R ubuntu:ubuntu /databricks
+
+# Default non-root user
+USER ubuntu
 

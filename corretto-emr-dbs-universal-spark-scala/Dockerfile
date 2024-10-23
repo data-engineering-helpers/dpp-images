@@ -10,9 +10,12 @@
 #
 FROM infrahelpers/dpp:jdk8
 
-ARG SBT_VERSION
+ARG SBT_VERSION="8"
 
-LABEL authors="Antoine Chenon<antoine.chenon@decathlon.com>, Denis Arnaud <denis.arnaud_fedora@m4x.org>"
+LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>"
+
+# Revert the user to root (as it has been set to ubuntu in the base image)
+USER root
 
 # Update the OS
 RUN yum -y update && yum clean all && rm -rf /var/cache/yum
@@ -22,4 +25,7 @@ RUN rm -f /etc/yum.repos.d/bintray-rpm.repo && \
 	curl -kLs https://www.scala-sbt.org/sbt-rpm.repo -o /etc/yum.repos.d/sbt-rpm.repo && \
 	yum -y install sbt-${SBT_VERSION}-0 && \
 	sbt -version
+
+# Default non-root user
+USER ubuntu
 

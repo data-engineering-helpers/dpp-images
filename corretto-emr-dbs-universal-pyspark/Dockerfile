@@ -9,14 +9,14 @@
 # See https://github.com/data-engineering-helpers/dpp-images/tree/main/coretto-emr-dbs-universal-base/Dockerfile
 # for more details about the base image (tag: infrahelpers/dpp:jdk{JDK_VERSION})
 #
-ARG JDK_VERSION
+ARG JDK_VERSION="8"
 
 FROM infrahelpers/dpp:jdk${JDK_VERSION}
 
 LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>, Nicolas Gibaud <nicolas.gibaud.partner@decathlon.com>"
 
-ARG PYTHON_MINOR_VERSION
-ARG PYTHON_MICRO_VERSION
+ARG PYTHON_MINOR_VERSION="3.11"
+ARG PYTHON_MICRO_VERSION="3.11.10"
 
 # Environment
 ENV container="docker"
@@ -26,6 +26,9 @@ ENV PYSPARK_DRIVER_PYTHON="python3"
 ENV PYTHON_MINOR_VERSION=$PYTHON_MINOR_VERSION
 ENV PYTHON_MICRO_VERSION=$PYTHON_MICRO_VERSION
 ENV PYSPARK_PYTHON="/databricks/python3/bin/python3"
+
+# Revert the user to root (as it has been set to ubuntu in the base image)
+USER root
 
 # Update the OS
 RUN yum -y update && yum clean all && rm -rf /var/cache/yum
@@ -54,4 +57,7 @@ RUN python3 -mpip install -U pip && python3 -mpip install virtualenv && \
 	chown -R ubuntu:ubuntu /databricks/python3 && \
 	/databricks/python3/bin/python -V && \
 	/databricks/python3/bin/python -mpip install -U pip
+
+# Default non-root user
+USER ubuntu
 
