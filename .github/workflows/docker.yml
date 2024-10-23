@@ -6,6 +6,12 @@
 # * Python: https://github.com/data-engineering-helpers/dpp-images/tree/main/corretto-emr-dbs-universal-pyspark/Dockerfile
 # * Scala: https://github.com/data-engineering-helpers/dpp-images/blob/main/corretto-emr-dbs-universal-spark-scala/Dockerfile
 #
+# For SBOM and attestations of provenance:
+# * https://docs.docker.com/scout/policy/#supply-chain-attestations
+# * https://docs.docker.com/build/metadata/attestations/
+#   * With GitHub Actions:
+#     https://docs.docker.com/build/ci/github-actions/attestations/
+#
 name: Build and publish container images onto Docker Hub
 
 on:
@@ -14,6 +20,9 @@ on:
     - main
   workflow_dispatch:
 
+env:
+  IMAGE_NAME: infrahelpers/dpp
+    
 jobs:
   build_base_images:
     strategy:
@@ -46,6 +55,13 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v3
 
+      # https://github.com/docker/metadata-action
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+        
       - name: Run privileged
         run: sudo docker run --privileged --rm tonistiigi/binfmt --install arm64
 
@@ -60,9 +76,11 @@ jobs:
           build-args: |
             JDK_VERSION=${{ matrix.jdk_version }}
           push: true
+          provenance: mode=max
+          sbom: true
           tags: |
-            infrahelpers/dpp:jdk${{ matrix.jdk_version }}
-            infrahelpers/dpp:latest
+            ${{ env.IMAGE_NAME }}:jdk${{ matrix.jdk_version }}
+            ${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64/v8
@@ -114,12 +132,12 @@ jobs:
             JDK_VERSION=8
             SBT_VERSION=${{ matrix.sbt_version }}
           push: true
-          provenance: true
+          provenance: mode=max
           sbom: true
           tags: |
-            infrahelpers/dpp:jdk8-sbt${{ matrix.sbt_version }}
-            infrahelpers/dpp:jdk8-sbt${{ matrix.sbt_version }}-${{ env.SHA }}
-            infrahelpers/dpp:jdk8-sbt
+            ${{ env.IMAGE_NAME }}:jdk8-sbt${{ matrix.sbt_version }}
+            ${{ env.IMAGE_NAME }}:jdk8-sbt${{ matrix.sbt_version }}-${{ env.SHA }}
+            ${{ env.IMAGE_NAME }}:jdk8-sbt
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64/v8
@@ -185,12 +203,14 @@ jobs:
             PYTHON_MINOR_VERSION=${{ steps.extract_minor_version.outputs.minor_version }}
             PYTHON_MICRO_VERSION=${{ matrix.python_micro_version }}
           push: true
+          provenance: mode=max
+          sbom: true
           tags: |
-            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ steps.extract_minor_version.outputs.minor_version }}
-            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ steps.extract_minor_version.outputs.minor_version }}-${{ env.SHA }}
-            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}
-            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}-${{ env.SHA }}
-            infrahelpers/dpp:jdk${{ matrix.jdk_version }}-python
+            ${{ env.IMAGE_NAME }}:jdk${{ matrix.jdk_version }}-python${{ steps.extract_minor_version.outputs.minor_version }}
+            ${{ env.IMAGE_NAME }}:jdk${{ matrix.jdk_version }}-python${{ steps.extract_minor_version.outputs.minor_version }}-${{ env.SHA }}
+            ${{ env.IMAGE_NAME }}:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}
+            ${{ env.IMAGE_NAME }}:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}-${{ env.SHA }}
+            ${{ env.IMAGE_NAME }}:jdk${{ matrix.jdk_version }}-python
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64/v8
