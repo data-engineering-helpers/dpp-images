@@ -114,6 +114,8 @@ jobs:
             JDK_VERSION=8
             SBT_VERSION=${{ matrix.sbt_version }}
           push: true
+          provenance: true
+          sbom: true
           tags: |
             infrahelpers/dpp:jdk8-sbt${{ matrix.sbt_version }}
             infrahelpers/dpp:jdk8-sbt${{ matrix.sbt_version }}-${{ env.SHA }}
