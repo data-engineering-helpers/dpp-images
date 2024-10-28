@@ -6,11 +6,19 @@
 # * Python: https://github.com/data-engineering-helpers/dpp-images/tree/main/corretto-emr-dbs-universal-pyspark/Dockerfile
 # * Scala: https://github.com/data-engineering-helpers/dpp-images/blob/main/corretto-emr-dbs-universal-spark-scala/Dockerfile
 #
+# Docker Cloud builds:
+# * https://docs.docker.com/build-cloud/
+# * https://docs.docker.com/build-cloud/ci/
+#
 # For SBOM and attestations of provenance:
 # * https://docs.docker.com/scout/policy/#supply-chain-attestations
 # * https://docs.docker.com/build/metadata/attestations/
 #   * With GitHub Actions:
 #     https://docs.docker.com/build/ci/github-actions/attestations/
+#
+# Scheduling builds:
+# * https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
+# * https://crontab.guru/#0_2_*_*_*
 #
 name: Build and publish container images onto Docker Hub
 
@@ -18,9 +26,12 @@ on:
   push:
     branches:
     - main
+  schedule:
+    - cron: "0 0 * * *" # Trigeer a build every day at 00:00 UTC
   workflow_dispatch:
 
 env:
+  ORG_NAME: infrahelpers
   IMAGE_NAME: infrahelpers/dpp
     
 jobs:
@@ -54,6 +65,11 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          version: "lab:latest"
+          driver: cloud
+          endpoint: "${{ env.ORG_NAME}}/default"
+          install: true
 
       # https://github.com/docker/metadata-action
       - name: Extract metadata
@@ -81,8 +97,11 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:jdk${{ matrix.jdk_version }}
             ${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # For pull requests, export results to the build cache.
+          # Otherwise, push to a registry.
+          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
+          cache-from: type=registry
+          cache-to: type=registry,mode=max
           platforms: linux/amd64,linux/arm64/v8
 
   build_scala_images:
@@ -111,6 +130,11 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          version: "lab:latest"
+          driver: cloud
+          endpoint: "${{ env.ORG_NAME}}/default"
+          install: true
 
       # https://github.com/benjlevesque/short-sha
       - name: Load short SHA1
@@ -138,8 +162,11 @@ jobs:
             ${{ env.IMAGE_NAME }}:jdk8-sbt${{ matrix.sbt_version }}
             ${{ env.IMAGE_NAME }}:jdk8-sbt${{ matrix.sbt_version }}-${{ env.SHA }}
             ${{ env.IMAGE_NAME }}:jdk8-sbt
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # For pull requests, export results to the build cache.
+          # Otherwise, push to a registry.
+          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
+          cache-from: type=registry
+          cache-to: type=registry,mode=max
           platforms: linux/amd64,linux/arm64/v8
 
   build_python_images:
@@ -176,6 +203,11 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          version: "lab:latest"
+          driver: cloud
+          endpoint: "${{ env.ORG_NAME}}/default"
+          install: true
 
       - name: Extract Minor Version
         id: extract_minor_version
@@ -211,7 +243,10 @@ jobs:
             ${{ env.IMAGE_NAME }}:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}
             ${{ env.IMAGE_NAME }}:jdk${{ matrix.jdk_version }}-python${{ matrix.python_micro_version }}-${{ env.SHA }}
             ${{ env.IMAGE_NAME }}:jdk${{ matrix.jdk_version }}-python
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # For pull requests, export results to the build cache.
+          # Otherwise, push to a registry.
+          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
+          cache-from: type=registry
+          cache-to: type=registry,mode=max
           platforms: linux/amd64,linux/arm64/v8
 
