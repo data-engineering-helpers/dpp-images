@@ -81,19 +81,22 @@ RUN yum -y install procps net-tools hostname iproute coreutils bind-utils \
 WORKDIR $HOME
 
 # Install a newer jq version (as jq v1.5 seems to have some issues)
-RUN JQ_VER=$(curl -Ls https://api.github.com/repos/jqlang/jq/releases/latest|grep 'tag_name' | cut -d'-' -f2,2 | cut -d'"' -f1,1) && \
+RUN JQ_VER=$(curl -Ls https://api.github.com/repos/jqlang/jq/releases/latest | grep 'tag_name' | cut -d'-' -f2,2 | cut -d'"' -f1,1) && \
+	echo "JQ_VER=${JQ_VER}" && \
 	curl -Ls \
 	https://github.com/jqlang/jq/releases/download/jq-${JQ_VER}/jq-linux-amd64 -o /usr/local/bin/jq && \
 	chmod +x /usr/local/bin/jq
 
 # yq, the YAML CLI utility like jq, for YAML (https://github.com/mikefarah/yq)
-RUN YQ_VER=$(curl -Ls https://api.github.com/repos/mikefarah/yq/releases/latest | grep 'tag_name' | cut -d'v' -f2 | cut -d'"' -f1) && \
+RUN YQ_VER=$(curl -Ls https://api.github.com/repos/mikefarah/yq/releases/latest | grep 'tag_name' | cut -d'v' -f2,2 | cut -d'"' -f1,1) && \
+	architecture=$(uname -m|sed 's/x86_/amd/') && \
+	echo "YQ_VER=${YQ_VER} - architecture=${architecture}" && \
 	curl -Ls \
-	https://github.com/mikefarah/yq/releases/download/v${YQ_VER}/yq_linux_amd64 -o /usr/local/bin/yq && \
+	https://github.com/mikefarah/yq/releases/download/v${YQ_VER}/yq_linux_${architecture} -o /usr/local/bin/yq && \
 	chmod +x /usr/local/bin/yq
 
 # Cloud helpers Shell scripts (https://github.com/cloud-helpers/k8s-job-wrappers)
-RUN KJW_VER=$(curl -Ls https://api.github.com/repos/cloud-helpers/k8s-job-wrappers/tags|jq -r '.[].name'|grep "^v"|sort -r|head -1|cut -d'v' -f2,2) && \
+RUN KJW_VER=$(curl -Ls https://api.github.com/repos/cloud-helpers/k8s-job-wrappers/releases/latest | grep 'tag_name' | cut -d'v' -f2,2 | cut -d'"' -f1,1) && \
 	echo "KJW_VER=${KJW_VER}" && \
 	curl -Ls \
 	https://github.com/cloud-helpers/k8s-job-wrappers/archive/refs/tags/v${KJW_VER}.tar.gz -o k8s-job-wrappers.tar.gz && \
