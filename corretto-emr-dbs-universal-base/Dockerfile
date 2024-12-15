@@ -105,7 +105,9 @@ RUN KJW_VER=$(curl -Ls https://api.github.com/repos/cloud-helpers/k8s-job-wrappe
     ln -s /usr/local/k8s-job-wrappers-${KJW_VER} /usr/local/k8s-job-wrappers
 
 # AWS: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
-RUN curl -Ls https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip && \
+RUN architecture=$(uname -m|sed 's/x86_/amd/') && \
+	echo "architecture=${architecture}" && \
+	curl -Ls https://awscli.amazonaws.com/awscli-exe-linux-${architecture}.zip -o awscliv2.zip && \
 	unzip -q awscliv2.zip && rm -f awscliv2.zip && ./aws/install && \
 	rm -rf ./aws
 
