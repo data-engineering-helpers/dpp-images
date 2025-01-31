@@ -108,6 +108,7 @@ jobs:
           file: ./corretto-emr-dbs-universal-base/Dockerfile
           build-args: |
             JDK_VERSION=${{ matrix.jdk_version }}
+            JDK_TYPE=${{ matrix.jdk_version == '23' && 'new' || 'leg' }}
           push: true
           provenance: mode=max
           sbom: true

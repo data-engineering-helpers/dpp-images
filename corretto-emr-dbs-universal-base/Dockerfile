@@ -50,7 +50,8 @@
 # by that container image)
 #
 ARG JDK_VERSION="8"
-FROM amazoncorretto:${JDK_VERSION}
+ARG JDK_TYPE="leg"
+FROM amazoncorretto:${JDK_VERSION} AS basejdk
 
 LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>, Nicolas Gibaud <nicolas.gibaud.partner@decathlon.com>"
 
@@ -68,16 +69,22 @@ RUN yum -y update && \
 	yum clean all && rm -rf /var/cache/yum
 
 # Install a few more utilities, including pre-requisites for Python
-RUN yum -y install procps net-tools hostname iproute coreutils bind-utils \
+RUN yum -y install procps net-tools hostname iproute bind-utils \
 	less htop passwd which sudo man vim git tar tree \
-	wget curl file bash-completion keyutils bc \
+	wget file bash-completion keyutils bc \
 	zlib-devel bzip2-devel gzip \
-	openssl11-libs openssl11-devel \
 	autoconf automake libtool m4 gcc gcc-c++ cmake cmake3 libffi-devel \
 	readline-devel sqlite-devel fuse fuse-libs && \
 	yum clean all && rm -rf /var/cache/yum
 
+FROM basejdk AS jdk-new
+RUN yum -y install curl-minimal openssl-libs openssl-devel && yum clean all && rm -rf /var/cache/yum
+
+FROM basejdk AS jdk-leg
+RUN yum -y install curl coreutils openssl11-libs openssl11-devel && yum clean all && rm -rf /var/cache/yum
+
 #
+FROM jdk-${JDK_TYPE} AS final
 WORKDIR $HOME
 
 # Install a newer jq version (as jq v1.5 seems to have some issues)
