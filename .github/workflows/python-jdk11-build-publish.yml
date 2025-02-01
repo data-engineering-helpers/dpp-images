@@ -48,7 +48,6 @@ env:
 jobs:
 
   build_python_images:
-    needs: build_base_images
     strategy:
       matrix:
         # Use the latest releases for each minor version:
