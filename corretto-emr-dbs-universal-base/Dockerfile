@@ -57,8 +57,8 @@ LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>, Nicolas Gibaud <nicol
 
 # Environment
 ENV container="docker"
-ENV HOME="/root"
-ENV HOMEUSR="/home/ubuntu"
+ENV HOMEADM="/root"
+ENV HOME="/home/ubuntu"
 ENV PYSPARK_DRIVER_PYTHON="python3"
 
 # Update the OS and install a few packages useful for software development
@@ -85,7 +85,7 @@ RUN yum -y install curl coreutils openssl11-libs openssl11-devel && yum clean al
 
 #
 FROM jdk-${JDK_TYPE} AS final
-WORKDIR $HOME
+WORKDIR $HOMEADM
 
 # Install a newer jq version (as jq v1.5 seems to have some issues)
 RUN JQ_VER=$(curl -Ls https://api.github.com/repos/jqlang/jq/releases/latest | grep 'tag_name' | cut -d'-' -f2,2 | cut -d'"' -f1,1) && \
@@ -132,15 +132,15 @@ RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux
 #	chmod +x /usr/local/bin/saml2aws
 
 # Copy configuration in the user home, for the root user
-ADD bashrc $HOME/.bashrc
+ADD bashrc $HOMEADM/.bashrc
 
 # Create an ubuntu user
 RUN useradd ubuntu && \
 	echo "ubuntu  ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
 	chmod 0440 /etc/sudoers.d/ubuntu && \
-    mkdir -p $HOMEUSR/.local/bin
-ADD bashrc $HOMEUSR/.bashrc
-RUN chown -R ubuntu:ubuntu $HOMEUSR
+    mkdir -p $HOME/.local/bin
+ADD bashrc $HOME/.bashrc
+RUN chown -R ubuntu:ubuntu $HOME
 
 # Create a /databricks/python3 directory and set environment and permissions
 # This is what is used by DataBricks
@@ -148,8 +148,8 @@ RUN mkdir -p /databricks/python3 && chown -R ubuntu:ubuntu /databricks
 
 # Default non-root user
 USER ubuntu
-WORKDIR /home/ubuntu
+WORKDIR $HOME
 
 # uv - See https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx $HOMEUSR/.local/bin/
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx $HOME/.local/bin/
 

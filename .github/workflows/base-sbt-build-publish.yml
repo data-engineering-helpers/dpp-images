@@ -47,7 +47,7 @@ env:
   ORG_NAME: infrahelpers
   IMAGE_NAME: infrahelpers/dpp
   JDK_VERSION: 8
-  SBT_VERSION: 1.10.7
+  SBT_VERSION: 1.11.2
     
 jobs:
 

@@ -10,7 +10,7 @@
 #
 FROM infrahelpers/dpp:jdk8
 
-ARG SBT_VERSION="1.10.7"
+ARG SBT_VERSION="1.11.2"
 
 LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>"
 
