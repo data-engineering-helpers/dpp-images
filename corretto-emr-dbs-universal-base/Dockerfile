@@ -137,7 +137,10 @@ ADD bashrc $HOME/.bashrc
 # Create an ubuntu user
 RUN useradd ubuntu && \
 	echo "ubuntu  ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
-	chmod 0440 /etc/sudoers.d/ubuntu
+	chmod 0440 /etc/sudoers.d/ubuntu && \
+    mkdir -p $HOMEUSR/.local/bin
+ADD bashrc $HOMEUSR/.bashrc
+RUN chown -R ubuntu:ubuntu $HOMEUSR
 
 # Create a /databricks/python3 directory and set environment and permissions
 # This is what is used by DataBricks
@@ -145,4 +148,8 @@ RUN mkdir -p /databricks/python3 && chown -R ubuntu:ubuntu /databricks
 
 # Default non-root user
 USER ubuntu
+WORKDIR /home/ubuntu
+
+# uv - See https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx $HOMEUSR/.local/bin/
 
