@@ -89,14 +89,15 @@ WORKDIR $HOMEADM
 
 # Install a newer jq version (as jq v1.5 seems to have some issues)
 RUN JQ_VER=$(curl -Ls https://api.github.com/repos/jqlang/jq/releases/latest | grep 'tag_name' | cut -d'-' -f2,2 | cut -d'"' -f1,1) && \
-	echo "JQ_VER=${JQ_VER}" && \
+	architecture=$(uname -m|sed 's/x86_/amd/'|sed 's/aarch/arm/') && \
+	echo "JQ_VER=${JQ_VER} - architecture=${architecture}" && \
 	curl -Ls \
-	https://github.com/jqlang/jq/releases/download/jq-${JQ_VER}/jq-linux-amd64 -o /usr/local/bin/jq && \
+	https://github.com/jqlang/jq/releases/download/jq-${JQ_VER}/jq-linux-${architecture} -o /usr/local/bin/jq && \
 	chmod +x /usr/local/bin/jq
 
 # yq, the YAML CLI utility like jq, for YAML (https://github.com/mikefarah/yq)
 RUN YQ_VER=$(curl -Ls https://api.github.com/repos/mikefarah/yq/releases/latest | grep 'tag_name' | cut -d'v' -f2,2 | cut -d'"' -f1,1) && \
-	architecture=$(uname -m|sed 's/x86_/amd/') && \
+	architecture=$(uname -m|sed 's/x86_/amd/'|sed 's/aarch/arm/') && \
 	echo "YQ_VER=${YQ_VER} - architecture=${architecture}" && \
 	curl -Ls \
 	https://github.com/mikefarah/yq/releases/download/v${YQ_VER}/yq_linux_${architecture} -o /usr/local/bin/yq && \

@@ -20,4 +20,5 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias dir='ls -laFh --color'
 alias grep='grep --color'
+alias awsgetid='aws sts get-caller-identity'
 
