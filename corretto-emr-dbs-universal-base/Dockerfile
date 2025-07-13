@@ -103,6 +103,15 @@ RUN YQ_VER=$(curl -Ls https://api.github.com/repos/mikefarah/yq/releases/latest 
 	https://github.com/mikefarah/yq/releases/download/v${YQ_VER}/yq_linux_${architecture} -o /usr/local/bin/yq && \
 	chmod +x /usr/local/bin/yq
 
+# usql, the universal CLI tool for databases (https://github.com/xo/usql)
+RUN USQL_VER=$(curl -Ls https://api.github.com/repos/xo/usql/releases/latest | grep 'tag_name' | cut -d'v' -f2,2 | cut -d'"' -f1,1) && \
+	architecture=$(uname -m|sed 's/x86_/amd/'|sed 's/aarch/arm/') && \
+	echo "USQL_VER=${USQL_VER} - architecture=${architecture}" && \
+	curl -Ls \
+	https://github.com/xo/usql/releases/download/v${USQL_VER}/usql-${USQL_VER}-linux-${architecture}.tar.bz2 -o usql.tar.bz2 && \
+	tar jxf usql.tar.bz2 && rm -f usql.tar.bz2 LICENSE && \
+	mv usql /usr/local/bin/usql && chmod +x /usr/local/bin/usql
+
 # Cloud helpers Shell scripts (https://github.com/cloud-helpers/k8s-job-wrappers)
 RUN KJW_VER=$(curl -Ls https://api.github.com/repos/cloud-helpers/k8s-job-wrappers/releases/latest | grep 'tag_name' | cut -d'v' -f2,2 | cut -d'"' -f1,1) && \
 	echo "KJW_VER=${KJW_VER}" && \
