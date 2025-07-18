@@ -77,14 +77,16 @@ RUN yum -y install procps net-tools hostname iproute bind-utils iputils whois \
 	readline-devel sqlite-devel fuse fuse-libs && \
 	yum clean all && rm -rf /var/cache/yum
 
-FROM basejdk AS jdk-new
-RUN yum -y install curl-minimal openssl-libs openssl-devel && yum clean all && rm -rf /var/cache/yum
-
-FROM basejdk AS jdk-leg
-RUN yum -y install curl coreutils openssl11-libs openssl11-devel && yum clean all && rm -rf /var/cache/yum
+RUN if [ ${JDK_TYPE}="leg" ]; \
+	then \
+	yum -y install curl-minimal openssl-libs openssl-devel && yum clean all && \
+	rm -rf /var/cache/yum ; \
+    else \
+	yum -y install curl coreutils openssl11-libs openssl11-devel && \
+	yum clean all && rm -rf /var/cache/yum ; \
+    fi
 
 #
-FROM jdk-${JDK_TYPE} AS final
 WORKDIR $HOMEADM
 
 # Install a newer jq version (as jq v1.5 seems to have some issues)

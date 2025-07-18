@@ -1,13 +1,13 @@
 #
-# File: https://github.com/data-engineering-helpers/dpp-images/blob/main/.github/workflows/base-sbt-build-publish.yml
+# File: https://github.com/data-engineering-helpers/dpp-images/blob/main/.github/workflows/base-new-sbt-build-publish.yml
 # 
 # On Docker Hub:
 # * https://hub.docker.com/repository/docker/infrahelpers/dpp/tags
 #
 # Dockerfiles:
 # * Base: https://github.com/data-engineering-helpers/dpp-images/blob/main/corretto-emr-dbs-universal-base/Dockerfile
-#   * Usual tags on Docker Hub: infrahelpers/dpp:latest, infrahelpers/dpp:jdk8
-#   * Tags for other versions of the JDK: infrahelpers/dpp:jdk11, infrahelpers/dpp:jdk17, infrahelpers/dpp:jdk23
+#   * Usual tags on Docker Hub: infrahelpers/dpp:latest, infrahelpers/dpp:jdk23
+#   * Tags for other versions of the JDK: infrahelpers/dpp:jdk23, infrahelpers/dpp:jdk24
 # * Scala: https://github.com/data-engineering-helpers/dpp-images/blob/main/corretto-emr-dbs-universal-spark-scala/Dockerfile
 #   * Usual tags on Docker Hub: infrahelpers/dpp:jdkX-sbt, infrahelpers/dpp:jdkX-sbtY
 #
@@ -31,7 +31,7 @@
 # Scheduling builds
 # -----------------
 # * https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
-# * https://crontab.guru/#0_19_*_*_0,1,3,5
+# * https://crontab.guru/#30_19_*_*_0,1,3,5
 #
 name: Base and Scala images building and publishing
 
@@ -40,13 +40,13 @@ on:
     branches:
     - main
   schedule:
-    - cron: "0 19 * * 0,1,3,5" # Trigger a build at 19:00 UTC on Sun., Mon., Wed. and Fri.
+    - cron: "30 19 * * 0,1,3,5" # Trigger a build at 19:30 UTC on Sun., Mon., Wed. and Fri.
   workflow_dispatch:
 
 env:
   ORG_NAME: infrahelpers
   IMAGE_NAME: infrahelpers/dpp
-  JDK_VERSION: 17
+  JDK_VERSION: 23
   SBT_VERSION: 1.11.3
     
 jobs:
@@ -55,7 +55,9 @@ jobs:
     strategy:
       matrix:
         # https://www.java.com/releases/matrix/
-        jdk_version: [17, 21, 23]
+        # For JDK21 or before, see the other CI/CD pipeline:
+        # https://github.com/data-engineering-helpers/dpp-images/blob/main/.github/workflows/base-leg-sbt-build-publish.yml
+        jdk_version: [23, 24]
 
     # https://github.com/data-engineering-helpers/dpp-images/settings/environments/1067472804/edit
     environment: docker-hub
@@ -109,7 +111,7 @@ jobs:
           file: ./corretto-emr-dbs-universal-base/Dockerfile
           build-args: |
             JDK_VERSION=${{ matrix.jdk_version }}
-            JDK_TYPE=${{ (matrix.jdk_version == '23' || matrix.jdk_version == '24') && 'new' || 'leg' }}
+            JDK_TYPE='new'
           push: true
           provenance: mode=max
           sbom: true

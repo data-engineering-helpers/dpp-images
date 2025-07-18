@@ -52,12 +52,26 @@ RUN_JDK17_PY_IMGS := $(patsubst %,run-img-jdk17-py-%,$(PY_VERSIONS))
 PUSH_JDK17_PY_IMGS := $(patsubst %,push-img-jdk17-py-%,$(PY_VERSIONS))
 BUILD_PUSH_JDK17_PY_IMGS := $(patsubst %,build-push-img-jdk17-py-%,$(PY_VERSIONS))
 
+# Python versions for JDK 21
+BUILD_JDK21_PY_IMGS := $(patsubst %,build-img-jdk21-py-%,$(PY_VERSIONS))
+PULL_JDK21_PY_IMGS := $(patsubst %,pull-img-jdk21-py-%,$(PY_VERSIONS))
+RUN_JDK21_PY_IMGS := $(patsubst %,run-img-jdk21-py-%,$(PY_VERSIONS))
+PUSH_JDK21_PY_IMGS := $(patsubst %,push-img-jdk21-py-%,$(PY_VERSIONS))
+BUILD_PUSH_JDK21_PY_IMGS := $(patsubst %,build-push-img-jdk21-py-%,$(PY_VERSIONS))
+
 # Python versions for JDK 23
 BUILD_JDK23_PY_IMGS := $(patsubst %,build-img-jdk23-py-%,$(PY_VERSIONS))
 PULL_JDK23_PY_IMGS := $(patsubst %,pull-img-jdk23-py-%,$(PY_VERSIONS))
 RUN_JDK23_PY_IMGS := $(patsubst %,run-img-jdk23-py-%,$(PY_VERSIONS))
 PUSH_JDK23_PY_IMGS := $(patsubst %,push-img-jdk23-py-%,$(PY_VERSIONS))
 BUILD_PUSH_JDK23_PY_IMGS := $(patsubst %,build-push-img-jdk23-py-%,$(PY_VERSIONS))
+
+# Python versions for JDK 24
+BUILD_JDK24_PY_IMGS := $(patsubst %,build-img-jdk24-py-%,$(PY_VERSIONS))
+PULL_JDK24_PY_IMGS := $(patsubst %,pull-img-jdk24-py-%,$(PY_VERSIONS))
+RUN_JDK24_PY_IMGS := $(patsubst %,run-img-jdk24-py-%,$(PY_VERSIONS))
+PUSH_JDK24_PY_IMGS := $(patsubst %,push-img-jdk24-py-%,$(PY_VERSIONS))
+BUILD_PUSH_JDK24_PY_IMGS := $(patsubst %,build-push-img-jdk24-py-%,$(PY_VERSIONS))
 
 #
 .PHONY: help \
@@ -66,7 +80,9 @@ BUILD_PUSH_JDK23_PY_IMGS := $(patsubst %,build-push-img-jdk23-py-%,$(PY_VERSIONS
 	$(BUILD_JDK8_PY_IMGS) $(PULL_JDK8_PY_IMGS) $(RUN_JDK8_PY_IMGS) $(PUSH_JDK8_PY_IMGS) $(BUILD_PUSH_JDK8_PY_IMGS) \
 	$(BUILD_JDK11_PY_IMGS) $(PULL_JDK11_PY_IMGS) $(RUN_JDK11_PY_IMGS) $(PUSH_JDK11_PY_IMGS) $(BUILD_PUSH_JDK11_PY_IMGS) \
 	$(BUILD_JDK17_PY_IMGS) $(PULL_JDK17_PY_IMGS) $(RUN_JDK17_PY_IMGS) $(PUSH_JDK17_PY_IMGS) $(BUILD_PUSH_JDK17_PY_IMGS) \
-	$(BUILD_JDK23_PY_IMGS) $(PULL_JDK23_PY_IMGS) $(RUN_JDK23_PY_IMGS) $(PUSH_JDK23_PY_IMGS) $(BUILD_PUSH_JDK23_PY_IMGS)
+	$(BUILD_JDK21_PY_IMGS) $(PULL_JDK21_PY_IMGS) $(RUN_JDK21_PY_IMGS) $(PUSH_JDK21_PY_IMGS) $(BUILD_PUSH_JDK21_PY_IMGS) \
+	$(BUILD_JDK23_PY_IMGS) $(PULL_JDK23_PY_IMGS) $(RUN_JDK23_PY_IMGS) $(PUSH_JDK23_PY_IMGS) $(BUILD_PUSH_JDK23_PY_IMGS) \
+	$(BUILD_JDK24_PY_IMGS) $(PULL_JDK24_PY_IMGS) $(RUN_JDK24_PY_IMGS) $(PUSH_JDK24_PY_IMGS) $(BUILD_PUSH_JDK24_PY_IMGS)
 
 help: ## Display the help menu.
 	@grep -h "\#\#" $(MAKEFILE_LIST)
@@ -74,7 +90,7 @@ help: ## Display the help menu.
 # Base images
 $(BUILD_BASE_IMGS): build-img-base-%: ## Build the base container image
 	@jdk_version="$*" && \
-	$(eval JDK_TYPE := $(shell if [ "$*" = "23" ]; then echo "new"; else echo "leg"; fi)) \
+	$(eval JDK_TYPE := $(shell if [[ "$*" = "23" || "$*" = "24" ]]; then echo "new"; else echo "leg"; fi)) \
 	echo "jdk_version=$${jdk_version} - JDK_TYPE=$(JDK_TYPE)" && \
 	docker build \
 		-t $(DCK_REPO):jdk$${jdk_version} \
@@ -241,6 +257,44 @@ $(PUSH_JDK17_PY_IMGS): push-img-jdk17-py-%: ## Publish the Python container imag
 
 $(BUILD_PUSH_JDK17_PY_IMGS): build-push-img-jdk17-py-%: build-img-jdk17-py-% push-img-jdk17-py-% ## Build and push the Python container image
 
+# Python images for JDK21
+$(BUILD_JDK21_PY_IMGS): build-img-jdk21-py-%: ## Build the Python container image
+	@py_version="$*" && jdk_version="21" && \
+	PYTHON_MICRO_VERSION="$${py_version}" && \
+	$(eval PYTHON_MINOR_VERSION := $(shell echo "$*" | cut -d. -f1-2)) \
+	echo "py_version=$${py_version} - jdk_version=$${jdk_version}" && \
+	echo "PYTHON_MICRO_VERSION=$${PYTHON_MICRO_VERSION}" && \
+	echo "PYTHON_MINOR_VERSION=$(PYTHON_MINOR_VERSION)" && \
+	docker build \
+		-t $(DCK_REPO):jdk$${jdk_version}-python$${py_version} \
+		-t $(DCK_REPO):jdk$${jdk_version}-python$(PYTHON_MINOR_VERSION) \
+		-t $(DCK_REPO):jdk$${jdk_version}-python \
+		--build-arg JDK_VERSION=$${jdk_version} \
+		--build-arg PYTHON_MICRO_VERSION=$${PYTHON_MICRO_VERSION} \
+		--build-arg PYTHON_MINOR_VERSION=$(PYTHON_MINOR_VERSION) \
+		corretto-emr-dbs-universal-pyspark/
+
+$(PULL_JDK21_PY_IMGS): pull-img-jdk21-py-%: ## Pull the Python container image
+	@py_version="$*" && jdk_version="21" && \
+	docker pull $(DCK_REPO):jdk$${jdk_version}-python$${py_version}
+
+$(RUN_JDK21_PY_IMGS): run-img-jdk21-py-%: ## Run the Python container image
+	@py_version="$*" && jdk_version="21" && \
+	docker run --rm -it $(DCK_REPO):jdk$${jdk_version}-python$${py_version} bash
+
+$(PUSH_JDK21_PY_IMGS): push-img-jdk21-py-%: ## Publish the Python container image
+	@py_version="$*" && jdk_version="21" && \
+	PYTHON_MICRO_VERSION="$${py_version}" && \
+	$(eval PYTHON_MINOR_VERSION := $(shell echo "$*" | cut -d. -f1-2)) \
+	echo "py_version=$${py_version} - jdk_version=$${jdk_version}" && \
+	echo "PYTHON_MICRO_VERSION=$${PYTHON_MICRO_VERSION}" && \
+	echo "PYTHON_MINOR_VERSION=$(PYTHON_MINOR_VERSION)" && \
+	docker push $(DCK_REPO):jdk$${jdk_version}-python$${py_version} && \
+	docker push $(DCK_REPO):jdk$${jdk_version}-python$(PYTHON_MINOR_VERSION) && \
+	docker push $(DCK_REPO):jdk$${jdk_version}-python
+
+$(BUILD_PUSH_JDK21_PY_IMGS): build-push-img-jdk21-py-%: build-img-jdk21-py-% push-img-jdk21-py-% ## Build and push the Python container image
+
 # Python images for JDK23
 $(BUILD_JDK23_PY_IMGS): build-img-jdk23-py-%: ## Build the Python container image
 	@py_version="$*" && jdk_version="23" && \
@@ -278,4 +332,42 @@ $(PUSH_JDK23_PY_IMGS): push-img-jdk23-py-%: ## Publish the Python container imag
 	docker push $(DCK_REPO):jdk$${jdk_version}-python
 
 $(BUILD_PUSH_JDK23_PY_IMGS): build-push-img-jdk23-py-%: build-img-jdk23-py-% push-img-jdk23-py-% ## Build and push the Python container image
+
+# Python images for JDK24
+$(BUILD_JDK24_PY_IMGS): build-img-jdk24-py-%: ## Build the Python container image
+	@py_version="$*" && jdk_version="24" && \
+	PYTHON_MICRO_VERSION="$${py_version}" && \
+	$(eval PYTHON_MINOR_VERSION := $(shell echo "$*" | cut -d. -f1-2)) \
+	echo "py_version=$${py_version} - jdk_version=$${jdk_version}" && \
+	echo "PYTHON_MICRO_VERSION=$${PYTHON_MICRO_VERSION}" && \
+	echo "PYTHON_MINOR_VERSION=$(PYTHON_MINOR_VERSION)" && \
+	docker build \
+		-t $(DCK_REPO):jdk$${jdk_version}-python$${py_version} \
+		-t $(DCK_REPO):jdk$${jdk_version}-python$(PYTHON_MINOR_VERSION) \
+		-t $(DCK_REPO):jdk$${jdk_version}-python \
+		--build-arg JDK_VERSION=$${jdk_version} \
+		--build-arg PYTHON_MICRO_VERSION=$${PYTHON_MICRO_VERSION} \
+		--build-arg PYTHON_MINOR_VERSION=$(PYTHON_MINOR_VERSION) \
+		corretto-emr-dbs-universal-pyspark/
+
+$(PULL_JDK24_PY_IMGS): pull-img-jdk24-py-%: ## Pull the Python container image
+	@py_version="$*" && jdk_version="24" && \
+	docker pull $(DCK_REPO):jdk$${jdk_version}-python$${py_version}
+
+$(RUN_JDK24_PY_IMGS): run-img-jdk24-py-%: ## Run the Python container image
+	@py_version="$*" && jdk_version="24" && \
+	docker run --rm -it $(DCK_REPO):jdk$${jdk_version}-python$${py_version} bash
+
+$(PUSH_JDK24_PY_IMGS): push-img-jdk24-py-%: ## Publish the Python container image
+	@py_version="$*" && jdk_version="24" && \
+	PYTHON_MICRO_VERSION="$${py_version}" && \
+	$(eval PYTHON_MINOR_VERSION := $(shell echo "$*" | cut -d. -f1-2)) \
+	echo "py_version=$${py_version} - jdk_version=$${jdk_version}" && \
+	echo "PYTHON_MICRO_VERSION=$${PYTHON_MICRO_VERSION}" && \
+	echo "PYTHON_MINOR_VERSION=$(PYTHON_MINOR_VERSION)" && \
+	docker push $(DCK_REPO):jdk$${jdk_version}-python$${py_version} && \
+	docker push $(DCK_REPO):jdk$${jdk_version}-python$(PYTHON_MINOR_VERSION) && \
+	docker push $(DCK_REPO):jdk$${jdk_version}-python
+
+$(BUILD_PUSH_JDK24_PY_IMGS): build-push-img-jdk24-py-%: build-img-jdk24-py-% push-img-jdk24-py-% ## Build and push the Python container image
 
