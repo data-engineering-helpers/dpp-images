@@ -44,6 +44,7 @@ env:
   ORG_NAME: infrahelpers
   IMAGE_NAME: infrahelpers/dpp
   JDK_VERSION: 23
+  JDK_TYPE: new
     
 jobs:
 
@@ -100,7 +101,7 @@ jobs:
           file: ./corretto-emr-dbs-universal-base/Dockerfile
           build-args: |
             JDK_VERSION=${{ env.JDK_VERSION }}
-            JDK_TYPE=${{ (matrix.jdk_version == '23' || matrix.jdk_version == '24') && 'new' || 'leg' }}
+            JDK_TYPE=${{ env.JDK_TYPE }}
           push: true
           provenance: mode=max
           sbom: true
