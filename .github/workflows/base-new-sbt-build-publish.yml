@@ -33,7 +33,7 @@
 # * https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
 # * https://crontab.guru/#30_19_*_*_0,1,3,5
 #
-name: Base and Scala images building and publishing
+name: Base newer and Scala images building and publishing
 
 on:
   push:
