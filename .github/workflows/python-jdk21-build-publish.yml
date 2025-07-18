@@ -1,12 +1,12 @@
 #
-# File: https://github.com/data-engineering-helpers/dpp-images/blob/main/.github/workflows/python-jdk17-build-publish.yml
+# File: https://github.com/data-engineering-helpers/dpp-images/blob/main/.github/workflows/python-jdk21-build-publish.yml
 # 
 # On Docker Hub:
 # * https://hub.docker.com/repository/docker/infrahelpers/dpp/tags
 #
 # Dockerfiles:
 # * Python: https://github.com/data-engineering-helpers/dpp-images/tree/main/corretto-emr-dbs-universal-pyspark/Dockerfile
-#   * Usual tags on Docker Hub: infrahelpers/dpp:jdk17-python3.Y
+#   * Usual tags on Docker Hub: infrahelpers/dpp:jdk21-python3.Y
 #
 # Docker Cloud builds
 # -------------------
@@ -30,7 +30,7 @@
 # * https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
 # * https://crontab.guru/#0_0_*_*_1,2,4,6
 #
-name: Python JDK17 images building and publishing
+name: Python JDK21 images building and publishing
 
 on:
   push:
@@ -43,7 +43,7 @@ on:
 env:
   ORG_NAME: infrahelpers
   IMAGE_NAME: infrahelpers/dpp
-  JDK_VERSION: 17
+  JDK_VERSION: 21
     
 jobs:
 

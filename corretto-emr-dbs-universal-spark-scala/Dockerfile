@@ -2,15 +2,15 @@
 # Source: https://github.com/data-engineering-helpers/dpp-images/tree/main/corretto-emr-dbs-universal-spark-scala/Dockerfile
 # On Docker Hub: https://hub.docker.com/repository/docker/infrahelpers/dpp/general
 # Usual Docker tags:
-# * infrahelpers/dpp:jdk8-sbt{SBT_VERSION}
+# * infrahelpers/dpp:jdk17-sbt{SBT_VERSION}
 #
 # Image containing python installation, to be accessed by EMR and Databricks (for Spark Scala)
 # See https://github.com/data-engineering-helpers/dpp-images/tree/main/coretto-emr-dbs-universal-base/Dockerfile
 # for more details about the base image (tag: infrahelpers/dpp:jdk{JDK_VERSION})
 #
-FROM infrahelpers/dpp:jdk8
+FROM infrahelpers/dpp:jdk17
 
-ARG SBT_VERSION="1.11.2"
+ARG SBT_VERSION="1.11.3"
 
 LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>"
 
