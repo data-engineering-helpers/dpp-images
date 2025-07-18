@@ -47,10 +47,10 @@ RUN curl -kLs \
 # Set the PYTHON_MICRO_VERSION version of Python as system Python
 # This is what is used by AWS EMR
 RUN cd /usr/bin && \
-	rm -f /usr/bin/python3 /usr/bin/python3 && \
+	rm -f /usr/bin/python /usr/bin/python3 && \
 	ln -s python${PYTHON_MINOR_VERSION} python && \
 	ln -s python${PYTHON_MINOR_VERSION} python3 && \
-	cd .. && \
+	cd $HOMEADM && \
 	python -V && python3 -V && \
 	python -mpip install -U pip
 
