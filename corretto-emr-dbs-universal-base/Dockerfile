@@ -85,7 +85,8 @@ RUN yum -y install procps net-tools hostname iproute bind-utils iputils whois \
 	zlib-devel bzip2-devel gzip xz-devel libzstd-devel \
 	readline-devel fuse fuse-libs \
 	perf expat expat-devel mpdecimal \
-	sqlite sqlite-devel sqlite-libs	&& \
+	sqlite sqlite-devel sqlite-libs	\
+	libuuid-devel gdbm-devel && \
 	yum clean all && rm -rf /var/cache/yum
 
 # From at least JDK23-based distributions, openssl11 is no longer available
