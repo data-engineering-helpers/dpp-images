@@ -90,8 +90,7 @@ help: ## Display the help menu.
 # Base images
 $(BUILD_BASE_IMGS): build-img-base-%: ## Build the base container image
 	@jdk_version="$*" && \
-	$(eval JDK_TYPE := $(shell if [[ "$*" = "23" || "$*" = "24" ]]; then echo "new"; else echo "leg"; fi)) \
-	echo "jdk_version=$${jdk_version} - JDK_TYPE=$(JDK_TYPE)" && \
+	echo "jdk_version=$${jdk_version}" && \
 	docker build \
 		-t $(DCK_REPO):jdk$${jdk_version} \
 		-t $(DCK_REPO):latest \

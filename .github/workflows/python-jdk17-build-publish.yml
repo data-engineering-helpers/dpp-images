@@ -48,87 +48,14 @@ env:
     
 jobs:
 
-  build_base_images:
-    # https://github.com/data-engineering-helpers/dpp-images/settings/environments/1067472804/edit
-    environment: docker-hub
-
-    runs-on: ubuntu-latest
-
-    steps:
-      # https://github.com/actions/checkout
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # https://github.com/docker/setup-qemu-action
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      # https://github.com/docker/login-action
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # https://github.com/docker/setup-buildx-action
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-        # Uncomment the following to activate the Docker Cloud builds
-        #with:
-        #  version: "lab:latest"
-        #  driver: cloud
-        #  endpoint: "${{ env.ORG_NAME}}/default"
-        #  install: true
-
-      # https://github.com/docker/metadata-action
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.IMAGE_NAME }}
-        
-      - name: Run privileged
-        run: sudo docker run --privileged --rm tonistiigi/binfmt --install arm64
-
-      # https://github.com/docker/build-push-action
-      - name: Build base corretto image
-        id: docker_build_corretto_base
-        uses: docker/build-push-action@v6
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          context: ./corretto-emr-dbs-universal-base
-          file: ./corretto-emr-dbs-universal-base/Dockerfile
-          build-args: |
-            JDK_VERSION=${{ env.JDK_VERSION }}
-            JDK_TYPE=${{ env.JDK_TYPE }}
-          push: true
-          provenance: mode=max
-          sbom: true
-          tags: |
-            ${{ env.IMAGE_NAME }}:jdk${{ env.JDK_VERSION }}
-            ${{ env.IMAGE_NAME }}:latest
-          # For pull requests, export results to the build cache.
-          # Otherwise, push to a registry.
-          # Uncomment the following 3 lines to activate the Docker Cloud builds
-          #outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
-          #cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:build-cache-jdk
-          #cache-to: type=registry,ref=${{ env.IMAGE_NAME }}:build-cache-jdk,mode=max
-          # Comment the following 2 lines when activating the Docker Cloud builds
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          platforms: linux/amd64,linux/arm64/v8
-
   build_python_images:
-    needs: build_base_images
-
     strategy:
       matrix:
         # Use the latest releases for each minor version:
         # https://www.python.org/downloads/source/
         # See also
         #  https://github.com/data-engineering-helpers/dpp-images/tree/main/matrix/python
-        python_micro_version: [3.11.13, 3.12.11, 3.13.5]
+        python_micro_version: [3.11.13, 3.12.11]
 
     environment: docker-hub
 

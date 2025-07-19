@@ -1,8 +1,11 @@
 #
-# Source: https://github.com/data-engineering-helpers/dpp-images/tree/main/pyspark-coretto-emr-dbs-universal-base/Dockerfile
+# File: https://github.com/data-engineering-helpers/dpp-images/blob/main/corretto-emr-dbs-universal-base/Dockerfile
 # On Docker Hub: https://hub.docker.com/repository/docker/infrahelpers/dpp/general
 # Convention for the tags of the generated images:
 # * infrahelpers/dpp:jdk{JDK_VERSION} e.g.:
+#  * infrahelpers/dpp:jdk24
+#  * infrahelpers/dpp:jdk23
+#  * infrahelpers/dpp:jdk21
 #  * infrahelpers/dpp:jdk17
 #  * infrahelpers/dpp:jdk11
 #  * infrahelpers/dpp:jdk8
@@ -17,22 +20,25 @@
 # A pristine Python installation is performed by the downstream images
 # (see the pyspark-py3X/ directories), with specific versions.
 # Note that:
-# * DataBricks uses Python 3.10 internally by default
-# * AWS EMR uses Python 3.9 by default
+# * DataBricks uses Python 3.12 internally by default (with Runtime 16.4 LTS)
+# * Corretto uses:
+#	  * Python 3.9 by default on Corretto 23-24
+#	  * Python 3.7 by default on Corretto 8-21
 #
 # AWS Corretto / EMR
 # ==================
+# * https://docs.aws.amazon.com/corretto/latest/corretto-24-ug/docker-install.html
+# * https://docs.aws.amazon.com/corretto/latest/corretto-23-ug/docker-install.html
+# * https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/docker-install.html
 # * https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/docker-install.html
 # * https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/docker-install.html
 # * https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/what-is-corretto-8.html
 #
-# The underlying operating system (OS) is:
-# * Amazon Linux 2023 (AL2023) for Corretto 17, based on a
+# The underlying operating systems (OS) are:
+# * Amazon Linux 2023 (AL2023) for Corretto 17-24, based on a
 #   RedHat Linux 8 with some Amazon specific additions.
-# * Amazon Linux 2 for Corretto 11 and Corretto 8, based on a
+# * Amazon Linux 2 for Corretto 8-11, based on a
 #   RedHat Linux 7 with some Amazon specific additions.
-# The Python version is 3.9 by default (on Corretto 17), if installed with
-# the Linux distribution.
 # Note that, for EMR versions lower than 6.x, only Java 8 was supported.
 # With Java 11+, it generated errors like
 # https://confluence.atlassian.com/confkb/unrecognized-jvm-gc-options-when-using-java-11-1002472841.html
@@ -49,9 +55,10 @@
 # /databricks/python3, and Python is the main one (pristine, installed manually
 # by that container image)
 #
-ARG JDK_VERSION="8"
-ARG JDK_TYPE="leg"
-FROM amazoncorretto:${JDK_VERSION} AS basejdk
+ARG JDK_VERSION="17"
+FROM amazoncorretto:${JDK_VERSION}
+# https://docs.docker.com/reference/dockerfile/#understand-how-arg-and-from-interact
+ARG JDK_VERSION
 
 LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>, Nicolas Gibaud <nicolas.gibaud.partner@decathlon.com>"
 
@@ -69,22 +76,30 @@ RUN yum -y update && \
 	yum clean all && rm -rf /var/cache/yum
 
 # Install a few more utilities, including pre-requisites for Python
+# Ref: https://devguide.python.org/getting-started/setup-building/index.html#install-dependencies
 RUN yum -y install procps net-tools hostname iproute bind-utils iputils whois \
 	less htop passwd which sudo man vim git tar tree \
 	wget file bash-completion keyutils bc \
-	zlib-devel bzip2-devel gzip \
-	autoconf automake libtool m4 gcc gcc-c++ cmake cmake3 libffi-devel \
-	readline-devel sqlite-devel fuse fuse-libs && \
+	gcc gcc-c++ gdb glibc-devel libffi-devel \
+	autoconf automake libtool m4 cmake cmake3 \
+	zlib-devel bzip2-devel gzip xz-devel libzstd-devel \
+	readline-devel fuse fuse-libs \
+	perf expat expat-devel mpdecimal \
+	sqlite sqlite-devel sqlite-libs	&& \
 	yum clean all && rm -rf /var/cache/yum
 
-RUN if [ ${JDK_TYPE}="leg" ]; \
-	then \
-	yum -y install curl-minimal openssl-libs openssl-devel && yum clean all && \
-	rm -rf /var/cache/yum ; \
-    else \
-	yum -y install curl coreutils openssl11-libs openssl11-devel && \
-	yum clean all && rm -rf /var/cache/yum ; \
-    fi
+# From at least JDK23-based distributions, openssl11 is no longer available
+RUN jdk_version=$JDK_VERSION && \
+	echo "jdk_version=$jdk_version - JDK_VERSION=$JDK_VERSION" && \
+	if [ "$jdk_version" -gt "22" ]; then \
+      echo "Newer JDK ($jdk_version >= 23)"; \
+	  yum -y install curl-minimal openssl-libs openssl-devel && \
+	  yum clean all && rm -rf /var/cache/yum ; \
+	else \
+      echo "Older JDK ($jdk_version < 23)"; \
+	  yum -y install curl coreutils openssl11-libs openssl11-devel && \
+	  yum clean all && rm -rf /var/cache/yum ; \
+	fi
 
 #
 WORKDIR $HOMEADM
