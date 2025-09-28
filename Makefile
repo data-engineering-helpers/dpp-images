@@ -73,6 +73,14 @@ RUN_JDK24_PY_IMGS := $(patsubst %,run-img-jdk24-py-%,$(PY_VERSIONS))
 PUSH_JDK24_PY_IMGS := $(patsubst %,push-img-jdk24-py-%,$(PY_VERSIONS))
 BUILD_PUSH_JDK24_PY_IMGS := $(patsubst %,build-push-img-jdk24-py-%,$(PY_VERSIONS))
 
+# Python slim versions
+DEF_SLIM_PY_DEB_REL := trixie
+BUILD_SLIM_PY_IMGS := $(patsubst %,build-img-slim-py-%,$(PY_VERSIONS))
+PULL_SLIM_PY_IMGS := $(patsubst %,pull-img-slim-py-%,$(PY_VERSIONS))
+RUN_SLIM_PY_IMGS := $(patsubst %,run-img-slim-py-%,$(PY_VERSIONS))
+PUSH_SLIM_PY_IMGS := $(patsubst %,push-img-slim-py-%,$(PY_VERSIONS))
+BUILD_PUSH_SLIM_PY_IMGS := $(patsubst %,build-push-img-slim-py-%,$(PY_VERSIONS))
+
 #
 .PHONY: help \
 	$(BUILD_BASE_IMGS) $(PULL_BASE_IMGS) $(RUN_BASE_IMGS) $(PUSH_BASE_IMGS) $(BUILD_PUSH_BASE_IMGS) \
@@ -82,7 +90,8 @@ BUILD_PUSH_JDK24_PY_IMGS := $(patsubst %,build-push-img-jdk24-py-%,$(PY_VERSIONS
 	$(BUILD_JDK17_PY_IMGS) $(PULL_JDK17_PY_IMGS) $(RUN_JDK17_PY_IMGS) $(PUSH_JDK17_PY_IMGS) $(BUILD_PUSH_JDK17_PY_IMGS) \
 	$(BUILD_JDK21_PY_IMGS) $(PULL_JDK21_PY_IMGS) $(RUN_JDK21_PY_IMGS) $(PUSH_JDK21_PY_IMGS) $(BUILD_PUSH_JDK21_PY_IMGS) \
 	$(BUILD_JDK23_PY_IMGS) $(PULL_JDK23_PY_IMGS) $(RUN_JDK23_PY_IMGS) $(PUSH_JDK23_PY_IMGS) $(BUILD_PUSH_JDK23_PY_IMGS) \
-	$(BUILD_JDK24_PY_IMGS) $(PULL_JDK24_PY_IMGS) $(RUN_JDK24_PY_IMGS) $(PUSH_JDK24_PY_IMGS) $(BUILD_PUSH_JDK24_PY_IMGS)
+	$(BUILD_JDK24_PY_IMGS) $(PULL_JDK24_PY_IMGS) $(RUN_JDK24_PY_IMGS) $(PUSH_JDK24_PY_IMGS) $(BUILD_PUSH_JDK24_PY_IMGS) \
+	$(BUILD_SLIM_PY_IMGS) $(PULL_SLIM_PY_IMGS) $(RUN_SLIM_PY_IMGS) $(PUSH_SLIM_PY_IMGS) $(BUILD_PUSH_SLIM_PY_IMGS)
 
 help: ## Display the help menu.
 	@grep -h "\#\#" $(MAKEFILE_LIST)
@@ -369,4 +378,49 @@ $(PUSH_JDK24_PY_IMGS): push-img-jdk24-py-%: ## Publish the Python container imag
 	docker push $(DCK_REPO):jdk$${jdk_version}-python
 
 $(BUILD_PUSH_JDK24_PY_IMGS): build-push-img-jdk24-py-%: build-img-jdk24-py-% push-img-jdk24-py-% ## Build and push the Python container image
+
+# Python slim images
+$(BUILD_SLIM_PY_IMGS): build-img-slim-py-%: ## Build the Python container image
+	@py_version="$*" && debian_release="$(DEF_SLIM_PY_DEB_REL)" && \
+	PYTHON_MICRO_VERSION="$${py_version}" && \
+	$(eval PYTHON_MINOR_VERSION := $(shell echo "$*" | cut -d. -f1-2)) \
+	echo "py_version=$${py_version} - debian_release=$${debian_release}" && \
+	echo "PYTHON_MICRO_VERSION=$${PYTHON_MICRO_VERSION}" && \
+	echo "PYTHON_MINOR_VERSION=$(PYTHON_MINOR_VERSION)" && \
+	docker build \
+		-t $(DCK_REPO):python$${py_version}-slim \
+		-t $(DCK_REPO):python$${py_version}-slim-$${debian_release} \
+		-t $(DCK_REPO):python$(PYTHON_MINOR_VERSION)-slim \
+		-t $(DCK_REPO):python$(PYTHON_MINOR_VERSION)-slim-$${debian_release} \
+		-t $(DCK_REPO):python-slim \
+		-t $(DCK_REPO):python-slim-$${debian_release} \
+		-t python-slim \
+		--build-arg DEBIAN_RELEASE=$${debian_release} \
+		--build-arg PYTHON_MICRO_VERSION=$${PYTHON_MICRO_VERSION} \
+		--build-arg PYTHON_MINOR_VERSION=$(PYTHON_MINOR_VERSION) \
+		python-slim/
+
+$(PULL_SLIM_PY_IMGS): pull-img-slim-py-%: ## Pull the Python container image
+	@py_version="$*" && debian_release="$(DEF_SLIM_PY_DEB_REL)" && \
+	docker pull $(DCK_REPO):python$${py_version}-slim-$${debian_release}
+
+$(RUN_SLIM_PY_IMGS): run-img-slim-py-%: ## Run the Python container image
+	@py_version="$*" && debian_release="$(DEF_SLIM_PY_DEB_REL)" && \
+	docker run --rm -it $(DCK_REPO):python$${py_version}-slim-$${debian_release} bash
+
+$(PUSH_SLIM_PY_IMGS): push-img-slim-py-%: ## Publish the Python container image
+	@py_version="$*" && debian_release="$(DEF_SLIM_PY_DEB_REL)" && \
+	PYTHON_MICRO_VERSION="$${py_version}" && \
+	$(eval PYTHON_MINOR_VERSION := $(shell echo "$*" | cut -d. -f1-2)) \
+	echo "py_version=$${py_version} - debian_release=$${debian_release}" && \
+	echo "PYTHON_MICRO_VERSION=$${PYTHON_MICRO_VERSION}" && \
+	echo "PYTHON_MINOR_VERSION=$(PYTHON_MINOR_VERSION)" && \
+	docker push $(DCK_REPO):python$${py_version}-slim && \
+	docker push $(DCK_REPO):python$${py_version}-slim-$${debian_release} && \
+	docker push $(DCK_REPO):python$(PYTHON_MINOR_VERSION)-slim && \
+	docker push $(DCK_REPO):python$(PYTHON_MINOR_VERSION)-slim-$${debian_release} && \
+	docker push $(DCK_REPO):python-slim && \
+	docker push $(DCK_REPO):python-slim-$${debian_release}
+
+$(BUILD_PUSH_SLIM_PY_IMGS): build-push-img-slim-py-%: build-img-slim-py-% push-img-slim-py-% ## Build and push the Python container image
 

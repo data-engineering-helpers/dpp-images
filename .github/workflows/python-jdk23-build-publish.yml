@@ -28,7 +28,7 @@
 # Scheduling builds
 # -----------------
 # * https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
-# * https://crontab.guru/#0_0_*_*_1,2,4,6
+# * https://crontab.guru/#0_14_*_*_1,2,4,6
 #
 name: Python JDK23 images building and publishing
 
@@ -37,7 +37,7 @@ on:
     branches:
     - main
   schedule:
-    - cron: "0 0 * * 1,2,4,6" # Trigger a build at 00:00 UTC on Mon., Tue., Thu. and Sat.
+    - cron: "0 14 * * 1,2,4,6" # Trigger a build at 14:00 UTC on Mon., Tue., Thu. and Sat.
   workflow_dispatch:
 
 env:
