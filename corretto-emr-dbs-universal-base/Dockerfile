@@ -27,8 +27,19 @@
 #
 # AWS Corretto / EMR
 # ==================
+# * Dockerfile on GitHub: https://github.com/corretto/corretto-docker
+# * Docker Hub: https://hub.docker.com/_/amazoncorretto
+# Note that not all the yearly versions are perpetually available.
+# Typically, yearly versions are available only up until 1-2 years after.
+# For instance, JDK23 has been available up until mid-2025.
+# Be careful that, once those yearly versions are no longer maintained,
+# the security issues may increase in a way out of control. In other words,
+# do not maintain images based on no longer maintained yearly versions (e.g.,
+# as of Q4 2025, JDK23-based images should no longer be used).
+#
+# Version specific pages on AWS documentation site:
+# * https://docs.aws.amazon.com/corretto/latest/corretto-25-ug/docker-install.html
 # * https://docs.aws.amazon.com/corretto/latest/corretto-24-ug/docker-install.html
-# * https://docs.aws.amazon.com/corretto/latest/corretto-23-ug/docker-install.html
 # * https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/docker-install.html
 # * https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/docker-install.html
 # * https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/docker-install.html

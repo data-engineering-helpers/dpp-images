@@ -1,13 +1,12 @@
-
 #
-# File: https://github.com/data-engineering-helpers/dpp-images/blob/main/.github/workflows/python-jdk23-build-publish.yml
+# File: https://github.com/data-engineering-helpers/dpp-images/blob/main/.github/workflows/python-jdk24-build-publish.yml
 # 
 # On Docker Hub:
 # * https://hub.docker.com/repository/docker/infrahelpers/dpp/tags
 #
 # Dockerfiles:
 # * Python: https://github.com/data-engineering-helpers/dpp-images/tree/main/corretto-emr-dbs-universal-pyspark/Dockerfile
-#   * Usual tags on Docker Hub: infrahelpers/dpp:jdk23-python3.Y
+#   * Usual tags on Docker Hub: infrahelpers/dpp:jdk24-python3.Y
 #
 # Docker Cloud builds
 # -------------------
@@ -29,22 +28,22 @@
 # Scheduling builds
 # -----------------
 # * https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
-# * https://crontab.guru/#0_14_*_*_1,2,4,6
+# * https://crontab.guru/#0_12_*_*_1,2,4,6
 #
-name: Python JDK23 images building and publishing
+name: Python JDK24 images building and publishing
 
 on:
   push:
     branches:
     - main
   schedule:
-    - cron: "0 14 * * 1,2,4,6" # Trigger a build at 14:00 UTC on Mon., Tue., Thu. and Sat.
+    - cron: "0 12 * * 1,2,4,6" # Trigger a build at 12:00 UTC on Mon., Tue., Thu. and Sat.
   workflow_dispatch:
 
 env:
   ORG_NAME: infrahelpers
   IMAGE_NAME: infrahelpers/dpp
-  JDK_VERSION: 23
+  JDK_VERSION: 24
   JDK_TYPE: new
     
 jobs:

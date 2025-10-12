@@ -28,7 +28,7 @@
 # Scheduling builds
 # -----------------
 # * https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows
-# * https://crontab.guru/#0_20_*_*_0,1,3,5
+# * https://crontab.guru/#30_20_*_*_0,1,3,5
 #
 name: Debian-based slim Python images building and publishing
 
@@ -37,7 +37,7 @@ on:
     branches:
     - main
   schedule:
-    - cron: "0 20 * * 0,1,3,5" # Trigger a build at 20:00 UTC on Sun., Mon., Wed. and Fri.
+    - cron: "30 20 * * 0,1,3,5" # Trigger a build at 20:30 UTC on Sun., Mon., Wed. and Fri.
   workflow_dispatch:
 
 env:
