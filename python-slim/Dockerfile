@@ -27,8 +27,8 @@ FROM python:${PYTHON_MINOR_VERSION}-slim-${DEBIAN_RELEASE}
 LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>, Gauthier Capouillez <gauthier.capouillez@decathlon.com>"
 
 # https://docs.docker.com/reference/dockerfile/#understand-how-arg-and-from-interact
-ARG DEBIAN_RELEASE="trixie"
-ARG PYTHON_MINOR_VERSION="3.11"
+ARG DEBIAN_RELEASE
+ARG PYTHON_MINOR_VERSION
 ARG PYTHON_MICRO_VERSION="3.11.13"
 ARG PYTHON_INSTALL_DIR="/usr/local"
 ARG GROUP_NAME="ubuntu"
