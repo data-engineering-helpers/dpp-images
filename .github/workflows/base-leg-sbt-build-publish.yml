@@ -48,7 +48,7 @@ env:
   IMAGE_NAME: infrahelpers/dpp
   JDK_VERSION: 17
   JDK_TYPE: leg
-  SBT_VERSION: 1.11.3
+  SBT_VERSION: 1.11.7
     
 jobs:
 

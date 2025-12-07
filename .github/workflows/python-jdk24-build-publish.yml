@@ -55,7 +55,7 @@ jobs:
         # https://www.python.org/downloads/source/
         # See also
         #  https://github.com/data-engineering-helpers/dpp-images/tree/main/matrix/python
-        python_micro_version: [3.12.12, 3.13.8]
+        python_micro_version: [3.12.12, 3.13.11]
 
     environment: docker-hub
 
