@@ -17,7 +17,7 @@ LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>, Nicolas Gibaud <nicol
 # https://docs.docker.com/reference/dockerfile/#understand-how-arg-and-from-interact
 ARG JDK_VERSION
 ARG PYTHON_MINOR_VERSION="3.12"
-ARG PYTHON_MICRO_VERSION="3.12.11"
+ARG PYTHON_MICRO_VERSION="3.12.12"
 ARG PYTHON_INSTALL_DIR="/usr/local"
 
 # Environment
@@ -33,7 +33,7 @@ ENV PYSPARK_PYTHON="/databricks/python3/bin/python3"
 USER root
 
 # Update the OS
-RUN yum -y update && yum clean all && rm -rf /var/cache/yum
+RUN dnf -y upgrade && dnf clean all && rm -rf /var/cache/dnf
 
 # Install the PYTHON_MICRO_VERSION version of Python
 RUN curl -kLs \

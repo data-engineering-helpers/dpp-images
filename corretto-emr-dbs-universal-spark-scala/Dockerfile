@@ -10,7 +10,7 @@
 #
 FROM infrahelpers/dpp:jdk17
 
-ARG SBT_VERSION="1.11.3"
+ARG SBT_VERSION="1.11.7"
 
 LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>"
 
@@ -18,12 +18,11 @@ LABEL authors="Denis Arnaud <denis.arnaud_fedora@m4x.org>"
 USER root
 
 # Update the OS
-RUN yum -y update && yum clean all && rm -rf /var/cache/yum
+RUN dnf -y upgrade && dnf clean all && rm -rf /var/cache/dnf
 
 # Install sbt
-RUN rm -f /etc/yum.repos.d/bintray-rpm.repo && \
-	curl -kLs https://www.scala-sbt.org/sbt-rpm.repo -o /etc/yum.repos.d/sbt-rpm.repo && \
-	yum -y install sbt-${SBT_VERSION}-0 && \
+RUN curl -kLs https://www.scala-sbt.org/sbt-rpm.repo -o /etc/yum.repos.d/sbt-rpm.repo && \
+	dnf -y install sbt-${SBT_VERSION}-0 && \
 	sbt -version
 
 # Default non-root user

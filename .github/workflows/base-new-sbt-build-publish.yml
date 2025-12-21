@@ -46,7 +46,7 @@ on:
 env:
   ORG_NAME: infrahelpers
   IMAGE_NAME: infrahelpers/dpp
-  JDK_VERSION: 24
+  JDK_VERSION: 25
   JDK_TYPE: new
   SBT_VERSION: 1.11.7
     
@@ -59,7 +59,8 @@ jobs:
         # For JDK21 or before, see the other CI/CD pipeline:
         # https://github.com/data-engineering-helpers/dpp-images/blob/main/.github/workflows/base-leg-sbt-build-publish.yml
         # Select only yearly versions available in https://github.com/corretto/corretto-docker
-        jdk_version: [24, 25]
+        # jdk_version: [25, 26]
+        jdk_version: [25]
 
     # https://github.com/data-engineering-helpers/dpp-images/settings/environments/1067472804/edit
     environment: docker-hub

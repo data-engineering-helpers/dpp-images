@@ -3,8 +3,7 @@
 # On Docker Hub: https://hub.docker.com/repository/docker/infrahelpers/dpp/general
 # Convention for the tags of the generated images:
 # * infrahelpers/dpp:jdk{JDK_VERSION} e.g.:
-#  * infrahelpers/dpp:jdk24
-#  * infrahelpers/dpp:jdk23
+#  * infrahelpers/dpp:jdk25
 #  * infrahelpers/dpp:jdk21
 #  * infrahelpers/dpp:jdk17
 #  * infrahelpers/dpp:jdk11
@@ -22,34 +21,40 @@
 # Note that:
 # * DataBricks uses Python 3.12 internally by default (with Runtime 16.4 LTS)
 # * Corretto uses:
-#	  * Python 3.9 by default on Corretto 23-24
+#	  * Python 3.9 by default on Corretto 23-25
 #	  * Python 3.7 by default on Corretto 8-21
 #
 # AWS Corretto / EMR
 # ==================
 # * Dockerfile on GitHub: https://github.com/corretto/corretto-docker
 # * Docker Hub: https://hub.docker.com/_/amazoncorretto
-# Note that not all the yearly versions are perpetually available.
-# Typically, yearly versions are available only up until 1-2 years after.
-# For instance, JDK23 has been available up until mid-2025.
+# Note that NOT all the yearly versions are perpetually available.
+# Typically, yearly versions are available only up until 1-2 years after release.
+# For instance, JDK23 and JDK24 have been available up until mid-2025.
 # Be careful that, once those yearly versions are no longer maintained,
 # the security issues may increase in a way out of control. In other words,
 # do not maintain images based on no longer maintained yearly versions (e.g.,
-# as of Q4 2025, JDK23-based images should no longer be used).
+# as of Q4 2025, JDK23-based and JDK24 images should no longer be used).
 #
 # Version specific pages on AWS documentation site:
 # * https://docs.aws.amazon.com/corretto/latest/corretto-25-ug/docker-install.html
-# * https://docs.aws.amazon.com/corretto/latest/corretto-24-ug/docker-install.html
 # * https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/docker-install.html
 # * https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/docker-install.html
 # * https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/docker-install.html
 # * https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/what-is-corretto-8.html
 #
-# The underlying operating systems (OS) are:
-# * Amazon Linux 2023 (AL2023) for Corretto 17-24, based on a
-#   RedHat Linux 8 with some Amazon specific additions.
-# * Amazon Linux 2 for Corretto 8-11, based on a
-#   RedHat Linux 7 with some Amazon specific additions.
+# All kinds of operating systems (OS) are now available, with a selection below.
+# If not specified, in the Docker tag, Amazon Linux 2 will be used by default.
+# * Amazon Linux 2023 (AL2023), based on a RedHat Linux 8 with some Amazon
+#	specific additions.
+#   * Add `-al2023` to the tag (e.g., 17-al2023)
+# * Amazon Linux 2, based on a RedHat Linux 7 with some Amazon specific additions.
+#   * That is the default OS
+# * Alpine 3.2x
+#   * Add `-alpine3.2x` to the tag (e.g., 17-alpine3.22)
+# * Debian 11 (Bullseye)
+#   * Although there are Dockerfile for Debian Slim, there does not seem to be
+#   the corresponding tags supporting it
 # Note that, for EMR versions lower than 6.x, only Java 8 was supported.
 # With Java 11+, it generated errors like
 # https://confluence.atlassian.com/confkb/unrecognized-jvm-gc-options-when-using-java-11-1002472841.html
@@ -67,7 +72,7 @@
 # by that container image)
 #
 ARG JDK_VERSION="17"
-FROM amazoncorretto:${JDK_VERSION}
+FROM amazoncorretto:${JDK_VERSION}-al2023
 # https://docs.docker.com/reference/dockerfile/#understand-how-arg-and-from-interact
 ARG JDK_VERSION
 
@@ -81,37 +86,26 @@ ENV PYSPARK_DRIVER_PYTHON="python3"
 
 # Update the OS and install a few packages useful for software development
 # (needed for some Python modules like SHAP)
-RUN yum -y update && \
-	yum -y install yum-utils shadow-utils && \
-	yum -y groupinstall development && \
-	yum clean all && rm -rf /var/cache/yum
+RUN dnf -y upgrade && \
+	dnf -y install dnf-utils shadow-utils && \
+	dnf -y groupinstall development && \
+	dnf clean all && rm -rf /var/cache/dnf
 
 # Install a few more utilities, including pre-requisites for Python
 # Ref: https://devguide.python.org/getting-started/setup-building/index.html#install-dependencies
-RUN yum -y install procps net-tools hostname iproute bind-utils iputils whois \
+RUN dnf -y install procps net-tools hostname iproute bind-utils iputils whois \
 	less htop passwd which sudo man vim git tar tree \
-	wget file bash-completion keyutils bc \
+	wget file bash-completion keyutils bc curl-minimal \
+	openssl-libs openssl-devel \
 	gcc gcc-c++ gdb glibc-devel libffi-devel \
 	autoconf automake libtool m4 cmake cmake3 \
 	zlib-devel bzip2-devel gzip xz-devel libzstd-devel \
 	readline-devel fuse fuse-libs \
 	perf expat expat-devel mpdecimal \
 	sqlite sqlite-devel sqlite-libs	\
+	libpq-devel postgresql17 \
 	libuuid-devel gdbm-devel && \
-	yum clean all && rm -rf /var/cache/yum
-
-# From at least JDK23-based distributions, openssl11 is no longer available
-RUN jdk_version=$JDK_VERSION && \
-	echo "jdk_version=$jdk_version - JDK_VERSION=$JDK_VERSION" && \
-	if [ "$jdk_version" -gt "22" ]; then \
-      echo "Newer JDK ($jdk_version >= 23)"; \
-	  yum -y install curl-minimal openssl-libs openssl-devel && \
-	  yum clean all && rm -rf /var/cache/yum ; \
-	else \
-      echo "Older JDK ($jdk_version < 23)"; \
-	  yum -y install curl coreutils openssl11-libs openssl11-devel && \
-	  yum clean all && rm -rf /var/cache/yum ; \
-	fi
+	dnf clean all && rm -rf /var/cache/dnf
 
 #
 WORKDIR $HOMEADM
@@ -158,8 +152,8 @@ RUN architecture=$(uname -m) && \
 	rm -rf ./aws
 
 # HashiCorp Vault (https://developer.hashicorp.com/vault/install)
-RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo && \
-    yum -y install vault
+RUN dnf config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo && \
+    dnf -y install vault && dnf clean all && rm -rf /var/cache/dnf
 
 # SAML-to-AWS (saml2aws) - https://github.com/Versent/saml2aws
 # AWS SSO is becoming mainstream (and replacing SAML2AWS)

@@ -23,11 +23,11 @@ BUILD_PUSH_BASE_IMGS := $(patsubst %,build-push-img-base-%,$(JDK_VERSIONS))
 # Scala versions (built with SBT)
 SBT_VERSION_PATHS := $(wildcard matrix/sbt/*)
 SBT_VERSIONS := $(patsubst matrix/sbt/%,%,$(SBT_VERSION_PATHS))
-BUILD_JDK8_SBT_IMGS := $(patsubst %,build-img-jdk8-sbt-%,$(SBT_VERSIONS))
-PULL_JDK8_SBT_IMGS := $(patsubst %,pull-img-jdk8-sbt-%,$(SBT_VERSIONS))
-RUN_JDK8_SBT_IMGS := $(patsubst %,run-img-jdk8-sbt-%,$(SBT_VERSIONS))
-PUSH_JDK8_SBT_IMGS := $(patsubst %,push-img-jdk8-sbt-%,$(SBT_VERSIONS))
-BUILD_PUSH_JDK8_SBT_IMGS := $(patsubst %,build-push-img-jdk8-sbt-%,$(SBT_VERSIONS))
+BUILD_JDK_SBT_IMGS := $(patsubst %,build-img-jdk-sbt-%,$(SBT_VERSIONS))
+PULL_JDK_SBT_IMGS := $(patsubst %,pull-img-jdk-sbt-%,$(SBT_VERSIONS))
+RUN_JDK_SBT_IMGS := $(patsubst %,run-img-jdk-sbt-%,$(SBT_VERSIONS))
+PUSH_JDK_SBT_IMGS := $(patsubst %,push-img-jdk-sbt-%,$(SBT_VERSIONS))
+BUILD_PUSH_JDK_SBT_IMGS := $(patsubst %,build-push-img-jdk-sbt-%,$(SBT_VERSIONS))
 
 # Python versions for JDK 8
 PY_VERSION_PATHS := $(wildcard matrix/python/*)
@@ -84,7 +84,7 @@ BUILD_PUSH_SLIM_PY_IMGS := $(patsubst %,build-push-img-slim-py-%,$(PY_VERSIONS))
 #
 .PHONY: help \
 	$(BUILD_BASE_IMGS) $(PULL_BASE_IMGS) $(RUN_BASE_IMGS) $(PUSH_BASE_IMGS) $(BUILD_PUSH_BASE_IMGS) \
-	$(BUILD_JDK8_SBT_IMGS) $(PULL_JDK8_SBT_IMGS) $(RUN_JDK8_SBT_IMGS) $(PUSH_JDK8_SBT_IMGS) $(BUILD_PUSH_JDK8_SBT_IMGS) \
+	$(BUILD_JDK_SBT_IMGS) $(PULL_JDK_SBT_IMGS) $(RUN_JDK_SBT_IMGS) $(PUSH_JDK_SBT_IMGS) $(BUILD_PUSH_JDK_SBT_IMGS) \
 	$(BUILD_JDK8_PY_IMGS) $(PULL_JDK8_PY_IMGS) $(RUN_JDK8_PY_IMGS) $(PUSH_JDK8_PY_IMGS) $(BUILD_PUSH_JDK8_PY_IMGS) \
 	$(BUILD_JDK11_PY_IMGS) $(PULL_JDK11_PY_IMGS) $(RUN_JDK11_PY_IMGS) $(PUSH_JDK11_PY_IMGS) $(BUILD_PUSH_JDK11_PY_IMGS) \
 	$(BUILD_JDK17_PY_IMGS) $(PULL_JDK17_PY_IMGS) $(RUN_JDK17_PY_IMGS) $(PUSH_JDK17_PY_IMGS) $(BUILD_PUSH_JDK17_PY_IMGS) \
@@ -125,31 +125,31 @@ $(PUSH_BASE_IMGS): push-img-base-%: ## Publish the base container image
 
 $(BUILD_PUSH_BASE_IMGS): build-push-img-base-%: build-img-base-% push-img-base-% ## Build and push the base container image
 
-# Scala images for JDK8
-$(BUILD_JDK8_SBT_IMGS): build-img-jdk8-sbt-%: ## Build the Python container image
-	@sbt_version="$*" && jdk_version="8" && \
+# Scala images with default JDK (as of end 2025, JDK17)
+$(BUILD_JDK_SBT_IMGS): build-img-jdk-sbt-%: ## Build the Python container image
+	@sbt_version="$*" && jdk_version="17" && \
 	echo "sbt_version=$${sbt_version} - jdk_version=$${jdk_version}" && \
 	docker build \
 		-t $(DCK_REPO):jdk$${jdk_version}-sbt$${sbt_version} \
 		-t $(DCK_REPO):jdk$${jdk_version}-sbt \
 		--build-arg JDK_VERSION=$${jdk_version} \
 		--build-arg SBT_VERSION=$${sbt_version} \
-		corretto-emr-dbs-universal-pyspark/
+		corretto-emr-dbs-universal-spark-scala/
 
-$(PULL_JDK8_SBT_IMGS): pull-img-jdk8-sbt-%: ## Pull the Python container image
-	@sbt_version="$*" && jdk_version="8" && \
+$(PULL_JDK_SBT_IMGS): pull-img-jdk-sbt-%: ## Pull the Python container image
+	@sbt_version="$*" && jdk_version="17" && \
 	docker pull $(DCK_REPO):jdk$${jdk_version}-sbt$${sbt_version}
 
-$(RUN_JDK8_SBT_IMGS): run-img-jdk8-sbt-%: ## Run the Python container image
-	@sbt_version="$*" && jdk_version="8" && \
+$(RUN_JDK_SBT_IMGS): run-img-jdk-sbt-%: ## Run the Python container image
+	@sbt_version="$*" && jdk_version="17" && \
 	docker run --rm -it $(DCK_REPO):jdk$${jdk_version}-sbt$${sbt_version} bash
 
-$(PUSH_JDK8_SBT_IMGS): push-img-jdk8-sbt-%: ## Publish the Python container image
-	@sbt_version="$*" && jdk_version="8" && \
+$(PUSH_JDK_SBT_IMGS): push-img-jdk-sbt-%: ## Publish the Python container image
+	@sbt_version="$*" && jdk_version="17" && \
 	docker push $(DCK_REPO):jdk$${jdk_version}-sbt$${sbt_version} && \
 	docker push $(DCK_REPO):jdk$${jdk_version}-sbt
 
-$(BUILD_PUSH_JDK8_SBT_IMGS): build-push-img-jdk8-sbt-%: build-img-jdk8-sbt-% push-img-jdk8-sbt-% ## Build and push the Python container image
+$(BUILD_PUSH_JDK_SBT_IMGS): build-push-img-jdk-sbt-%: build-img-jdk-sbt-% push-img-jdk-sbt-% ## Build and push the Python container image
 
 # Python images for JDK8
 $(BUILD_JDK8_PY_IMGS): build-img-jdk8-py-%: ## Build the Python container image
