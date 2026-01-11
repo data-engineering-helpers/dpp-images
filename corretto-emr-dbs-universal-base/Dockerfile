@@ -151,6 +151,9 @@ RUN architecture=$(uname -m) && \
 	unzip -q awscliv2.zip && rm -f awscliv2.zip && ./aws/install && \
 	rm -rf ./aws
 
+# Databricks CLI: https://docs.databricks.com/aws/en/dev-tools/cli/install#curl-install
+RUN curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+
 # HashiCorp Vault (https://developer.hashicorp.com/vault/install)
 RUN dnf config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo && \
     dnf -y install vault && dnf clean all && rm -rf /var/cache/dnf
